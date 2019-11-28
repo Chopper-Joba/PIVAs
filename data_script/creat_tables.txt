@@ -1,0 +1,119 @@
+1.PUSH_JMPZ_PZFY
+
+	create table PUSH_JMPZ_PZFY(
+	ID int not null,
+	PATIENT_ID VARCHAR(20) not null,
+	VISIT_ID VARCHAR(20) not null,
+	ORDER_ID VARCHAR(20) not null,
+	Department_no VARCHAR(20) not null,
+	Item_no VARCHAR(20) not null,
+	DevNo VARCHAR(20) not null,
+	Num int  not null,
+	Costs DEC(14,3) ,
+	DEMO VARCHAR(500),
+	Createtime date,
+	SEQID Varchar(100)
+	)
+
+	create sequence PUSH_JMPZ_PZFY_ID start with 1 order;
+	alter table PUSH_JMPZ_PZFY add constraint PUSH_JMPZ_PZFY_PK primary key (ID);
+
+
+2.PUSH_JMPZ_ORDERS_CHECK
+
+	create table PUSH_JMPZ_ORDERS_CHECK (
+	ID int not null,
+	PATIENT_ID VARCHAR(20) not null,
+	VISIT_ID VARCHAR(20) not null,
+	ORDER_ID VARCHAR(20) not null,
+	SHBZ VARCHAR(2) not null,
+	SHENGFANGZT VARCHAR(20) not null,
+	SEQID Varchar(100) not null
+	);
+
+	create sequence PUSH_JMPZ_ORDERS_CHECK_ID start with 1 order;
+	alter table PUSH_JMPZ_ORDERS_CHECK add constraint PUSH_JMPZ_ORDERS_CHECK_PK primary key (ID);
+	
+3.PUSH_JMPZ_PEIZHI
+
+	create table PUSH_JMPZ_PEIZHI(
+	ID int,
+	XH Number(14),
+	PATIENT_ID VARCHAR(20),
+	VISIT_ID VARCHAR(20),
+	ORDER_NO VARCHAR(20),
+	USE_DATE VARCHAR(10),
+	USE_TIME VARCHAR(8),
+	SPID VARCHAR(20),
+	SHL_PEIZHI DEC(14,3),
+	SEQID Varchar(100)
+	)
+
+	create sequence PUSH_JMPZ_PEIZHI＿ID start with 1 order;
+	alter table PUSH_JMPZ_PEIZHI add constraint PUSH_JMPZ_PEIZHI primary key (ID);
+
+/
+
+1.PUSH_JMPZ_ORDERS_CHECK_INS
+
+	create or replace procedure PUSH_JMPZ_ORDERS_CHECK_INS(
+	PATIENT_ID_IN in PUSH_JMPZ_ORDERS_CHECK.PATIENT_ID%type,
+	VISIT_ID_IN in  PUSH_JMPZ_ORDERS_CHECK.VISIT_ID%type,
+	ORDER_ID_IN in PUSH_JMPZ_ORDERS_CHECK.ORDER_ID%type,
+	SHBZ_IN in PUSH_JMPZ_ORDERS_CHECK.SHBZ%type,
+	SHENGFANGZT_IN in PUSH_JMPZ_ORDERS_CHECK.SHENGFANGZT%type,
+	SEQID_IN  in PUSH_JMPZ_ORDERS_CHECK.SEQID%type
+	) as
+	begin
+	  insert into PUSH_JMPZ_ORDERS_CHECK(ID,PATIENT_ID,VISIT_ID,ORDER_ID,SHBZ,SHENGFANGZT,SEQID)
+	  values(PUSH_JMPZ_ORDERS_CHECK_ID.NEXTVAL,PATIENT_ID_IN,VISIT_ID_IN,ORDER_ID_IN,SHBZ_IN,SHENGFANGZT_IN,SEQID_IN);
+	end PUSH_JMPZ_ORDERS_CHECK_INS;
+
+	Create Or Replace Public Synonym PUSH_JMPZ_ORDERS_CHECK_INS For zlhis.PUSH_JMPZ_ORDERS_CHECK_INS;
+	Grant Execute On PUSH_JMPZ_ORDERS_CHECK_INS To Public;
+	
+2.PUSH_JMPZ_PEIZHI_INS
+
+	create or replace procedure PUSH_JMPZ_PEIZHI_INS(
+		   XH_IN in PUSH_JMPZ_PEIZHI.XH%type,
+		   PATIENT_ID_IN in PUSH_JMPZ_PEIZHI.PATIENT_ID%type,
+		   VISIT_ID_IN in PUSH_JMPZ_PEIZHI.VISIT_ID%type,
+		   ORDER_NO_IN in PUSH_JMPZ_PEIZHI.ORDER_NO%type,
+		   USE_DATE_IN in  PUSH_JMPZ_PEIZHI.USE_DATE%type,
+		   USE_TIME_IN in  PUSH_JMPZ_PEIZHI.USE_TIME%type,
+		   SPID_IN in  PUSH_JMPZ_PEIZHI.SPID%type,
+		   SHL_PEIZHI_IN in PUSH_JMPZ_PEIZHI.SHL_PEIZHI%type,
+		   SEQID_IN in PUSH_JMPZ_PEIZHI.SEQID%type
+	  )as 
+	  begin
+		insert into PUSH_JMPZ_PEIZHI(ID,XH,PATIENT_ID,VISIT_ID,ORDER_NO,USE_DATE,USE_TIME,SPID,SHL_PEIZHI,SEQID) 
+		VALUES(PUSH_JMPZ_PEIZHI_ID.NEXTVAL,XH_IN,PATIENT_ID_IN,VISIT_ID_IN,ORDER_NO_IN,USE_DATE_IN,USE_TIME_IN,SPID_IN,SHL_PEIZHI_IN,SEQID_IN);
+	 end PUSH_JMPZ_PEIZHI_INS;
+
+	Create Or Replace Public Synonym PUSH_JMPZ_PEIZHI_INS For zlhis.PUSH_JMPZ_PEIZHI_INS;
+	Grant Execute On PUSH_JMPZ_PEIZHI_INS To Public;
+	
+3.PUSH_JMPZ_PZFY_INS
+
+	create or replace procedure PUSH_JMPZ_PZFY_INS(
+	 ID_IN               in  PUSH_JMPZ_PZFY.ID%type,
+	 PATIENT_ID          in  PUSH_JMPZ_PZFY.PATIENT_ID%type,
+	 VISIT_ID            in  PUSH_JMPZ_PZFY.VISIT_ID%type,
+	 ORDER_ID_IN         in  PUSH_JMPZ_PZFY.ORDER_ID%type,
+	 Department_no_IN    in  PUSH_JMPZ_PZFY.DEPARTMENT_NO%type,
+	 Item_no_IN          in  PUSH_JMPZ_PZFY.ITEM_NO%type,
+	 DevNo_IN            in  PUSH_JMPZ_PZFY.DEVNO%type,
+	 Num_IN              in  PUSH_JMPZ_PZFY.NUM%type,
+	 Costs_IN            in  PUSH_JMPZ_PZFY.COSTS%type,
+	 DEMO_IN             in  PUSH_JMPZ_PZFY.DEMO%type,
+	 Createtime_IN       in  PUSH_JMPZ_PZFY.CREATETIME%type,
+	 SEQID_IN            in  PUSH_JMPZ_PZFY.SEQID%type
+	)as 
+	begin 
+	  insert into PUSH_JMPZ_PZFY(ID,PATIENT_ID,VISIT_ID,ORDER_ID,Department_no,Item_no,DevNo,Num,Costs,DEMO,Createtime,SEQID)
+	  values(ID_IN,PATIENT_ID,VISIT_ID,ORDER_ID_IN,Department_no_IN,Item_no_IN,DevNo_IN,Num_IN,Costs_IN,DEMO_IN,Createtime_IN,SEQID_IN);
+	  end PUSH_JMPZ_PZFY_INS;
+	  
+	Create Or Replace Public Synonym PUSH_JMPZ_PZFY_INS For zlhis.PUSH_JMPZ_PZFY_INS;
+	Grant Execute On PUSH_JMPZ_PZFY_INS To Public;
+
