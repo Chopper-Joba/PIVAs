@@ -15,13 +15,14 @@ public class GTET_JMPZ_DOCTOR {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
+    String errMessage="";
     private  String  seqId,sourceSystem,messageId;
     public String  getDoctor( Document requestxml){
             try {
                 conn = DatabaseConnection.getConnection();
             } catch (IOException e1) {
                 // TODO Auto-generated catch block
-                return "数据库连接失败！";
+                errMessage+= "数据库连接失败！";
             }
             Element root=requestxml.getRootElement();
             Element seqid=root.element("Body").element("SEQID");
@@ -33,9 +34,10 @@ public class GTET_JMPZ_DOCTOR {
             Element messageid=root.element("Header").element("MessageID");
 //            获取入参MessageID的值
              messageId=replaceNullString(messageid.getText());
-            String sql="select a.id as aid,a.姓名,b.id as bid,b.名称,c.部门id,c.人员id,d.人员性质 from 人员表 a,部门表 b,部门人员 c ,人员性质说明 d " +
-                    "where a.id=c.人员id and b.id=c.部门id and a.id=d.人员id and d.人员性质='医生' and c.人员id=d.人员id";
-            try{
+            String sql= "select a.id as DOCTOR_NO,a.姓名 as DOCTOR_NAME,b.id as DEPARTMENT_NO,b.名称 as DEPARTMENTNAME,null as BEIZHU\n" +
+                        " from 人员表 a,部门表 b,部门人员 c ,人员性质说明 d\n" +
+                        "where a.id=c.人员id and b.id=c.部门id and a.id=d.人员id and d.人员性质='医生' and c.人员id=d.人员id";
+        try{
                 document= DocumentHelper.createDocument();
                 document.setXMLEncoding("utf-8");
                 preparedStatement=conn.prepareStatement(sql);
@@ -61,44 +63,44 @@ public class GTET_JMPZ_DOCTOR {
                     Element Rows=Body.addElement("Rows");
                     //医生编码
                     Element DOCTOR_NO=Rows.addElement("DOCTOR_NO");
-                    DOCTOR_NO.setText(replaceNullString(resultSet.getString("aid")));
+                    DOCTOR_NO.setText(replaceNullString(resultSet.getString("DOCTOR_NO")));
                     //医生名称
                     Element DOCTOR_NAME=Rows.addElement("DOCTOR_NAME");
-                    DOCTOR_NAME.setText(replaceNullString(resultSet.getString("姓名")));
+                    DOCTOR_NAME.setText(replaceNullString(resultSet.getString("DOCTOR_NAME")));
                     //部门编号
                     Element DEPARTMENT_NO=Rows.addElement("DEPARTMENT_NO");
-                    DEPARTMENT_NO.setText(replaceNullString(resultSet.getString("bid")));
+                    DEPARTMENT_NO.setText(replaceNullString(resultSet.getString("DEPARTMENT_NO")));
                     //部门名称
                     Element DEPARTMENTNAME=Rows.addElement("DEPARTMENTNAME");
-                    DEPARTMENTNAME.setText(replaceNullString(resultSet.getString("名称")));
+                    DEPARTMENTNAME.setText(replaceNullString(resultSet.getString("DEPARTMENTNAME")));
                     //备注
                     Element BEIZHU=Rows.addElement("BEIZHU");
-                    BEIZHU.setText(replaceNullString(""));
+                    BEIZHU.setText(replaceNullString(resultSet.getString("DEPARTMENTNAME")));
                 }
                 if (rows==0){
+                    errMessage+="没有查询到数据！";
                     fail();
                 }
             }catch (Exception e){
+                errMessage+=e.getMessage();
                 fail();
             }finally {
                 try {
                     conn.close();
                     preparedStatement.close();
                 }catch (Exception e){
-                    e.printStackTrace();
+                    errMessage+=e.getMessage();
                 }
-
             }
             return  document.asXML();
         }
-
-        public  String replaceNullString(String str){
-        if (str==null){
+    public  String replaceNullString(String str){
+        if ("".equals(str)||str==null){
             return "";
         }
         else
             return str;
-        }
+    }
       public void fail(){
         document=DocumentHelper.createDocument();
         document.setXMLEncoding("utf-8");
@@ -112,7 +114,7 @@ public class GTET_JMPZ_DOCTOR {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败");
+        MESSAGE.setText("失败!"+errMessage);
         Element Rows=Body.addElement("Rows");
         Element DOCTOR_NO=Rows.addElement("DOCTOR_NO");
         DOCTOR_NO.setText(replaceNullString(""));

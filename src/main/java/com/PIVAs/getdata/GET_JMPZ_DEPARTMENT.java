@@ -33,7 +33,7 @@ public class GET_JMPZ_DEPARTMENT {
         Element messageid=root.element("Header").element("MessageID");
 //            获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        String sql="select id,名称 from 部门表";
+        String sql="select id as DEPARTMENT_NO,名称 as DEPARTMENTNAME from 部门表";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -57,13 +57,14 @@ public class GET_JMPZ_DEPARTMENT {
                 rows++;
                 Element Rows=Body.addElement("Rows");
                 Element DEPARTMENT_NO=Rows.addElement("DEPARTMENT_NO");
-                DEPARTMENT_NO.setText(replaceNullString(resultSet.getString("id")));
+                DEPARTMENT_NO.setText(replaceNullString(resultSet.getString("DEPARTMENT_NO")));
                 Element DEPARTMENTNAME=Rows.addElement("DEPARTMENTNAME");
-                DEPARTMENTNAME.setText(replaceNullString(resultSet.getString("名称")));
+                DEPARTMENTNAME.setText(replaceNullString(resultSet.getString("DEPARTMENTNAME")));
                 Element CLASS_NO=Rows.addElement("CLASS_NO");
                 CLASS_NO.setText(replaceNullString(""));
             }
             if (rows==0){
+                errMessage+="没有查询到数据！";
                 fail();
             }
         }catch (Exception e){
@@ -75,7 +76,8 @@ public class GET_JMPZ_DEPARTMENT {
                 resultSet.close();
                 preparedStatement.close();
             }catch (Exception e){
-                e.printStackTrace();
+                errMessage+=e.getMessage();
+                fail();
             }
         }
         return document.asXML();

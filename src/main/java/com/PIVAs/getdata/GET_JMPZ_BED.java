@@ -15,13 +15,14 @@ public class GET_JMPZ_BED {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
+    String errMessage="";
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_BED(Document requestxml){
         try {
             conn = DatabaseConnection.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            return "数据库连接失败！";
+            errMessage+= "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -33,9 +34,19 @@ public class GET_JMPZ_BED {
         Element messageid=root.element("Header").element("MessageID");
         //获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        String sql="select a.科室id,a.病人id,a.主页id,b.入院病床,c.名称 from 在院病人 a, " +
-                "病案主页 b,床位状况记录 d, 床位等级 c where a.病人id=b.病人id and a.主页id=b.主页id " +
-                "and a.病人id=d.病人id and c.序号=d.等级id ";
+        String sql= "select a.病人id as PATIENT_ID,\n" +
+                        "       a.主页id as VISIT_ID,\n" +
+                        "       a.科室id as DEPARTMENT_NO,\n" +
+                        "       e.当前床号 as BED,\n" +
+                        "        c.名称 as BEDNAME\n" +
+                        "  from 在院病人 a ,病案主页 b, 床位状况记录 d, 床位等级 c,病人信息 e\n" +
+                        " where a.病人id = b.病人id\n" +
+                        "   and a.主页id = b.主页id\n" +
+                        "   and a.病人id = d.病人id\n" +
+                        "   and c.序号 = d.等级id\n" +
+                        "   and a.病人id=e.病人id\n" +
+                        "   and a.主页id=e.主页id";
+
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -60,27 +71,41 @@ public class GET_JMPZ_BED {
                 Element Rows=Body.addElement("Rows");
                 //病人id
                 Element PATIENT_ID=Rows.addElement("PATIENT_ID");
-                PATIENT_ID.addText(replaceNullString(resultSet.getString("病人id")));
+                PATIENT_ID.addText(replaceNullString(resultSet.getString("PATIENT_ID")));
                 //本次住院标识
                 Element VISIT_ID=Rows.addElement("VISIT_ID");
-                VISIT_ID.addText(replaceNullString(resultSet.getString("主页id")));
+                VISIT_ID.addText(replaceNullString(resultSet.getString("VISIT_ID")));
                 //部门编号
                 Element DEPARTMENT_NO=Rows.addElement("DEPARTMENT_NO");
-                DEPARTMENT_NO.addText(replaceNullString(resultSet.getString("科室id")));
+                DEPARTMENT_NO.addText(replaceNullString(resultSet.getString("DEPARTMENT_NO")));
                 //床位
                 Element BED=Rows.addElement("BED");
-                BED.addText(replaceNullString(resultSet.getString("入院病床")));
+                BED.addText(replaceNullString(resultSet.getString("BED")));
                 //床位名称
                 Element BEDNAME=Rows.addElement("BEDNAME");
-                BEDNAME.addText(replaceNullString(resultSet.getString("名称")));
+                BEDNAME.addText(replaceNullString(resultSet.getString("BEDNAME")));
+            }
+            if (rows==0){
+                errMessage+="没有查询到数据";
+                fail();
             }
         }catch (Exception e){
+            errMessage+=e.getMessage();
             fail();
+        }finally {
+            try {
+                conn.close();
+                resultSet.close();
+                preparedStatement.close();
+            }catch ( Exception e){
+                errMessage+=e.getMessage();
+                fail();
+            }
         }
         return document.asXML();
     }
     public  String replaceNullString(String str){
-        if (str==null){
+        if ("".equals(str)||str==null){
             return "";
         }
         else
@@ -99,7 +124,7 @@ public class GET_JMPZ_BED {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败");
+        MESSAGE.setText("失败!"+errMessage);
         Element Rows=Body.addElement("Rows");
         //病人id
         Element PATIENT_ID=Rows.addElement("PATIENT_ID");

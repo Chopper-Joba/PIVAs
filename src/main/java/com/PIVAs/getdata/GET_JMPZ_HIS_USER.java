@@ -16,13 +16,14 @@ public class GET_JMPZ_HIS_USER {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
+    String errMessge="";
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_HIS_USER(Document requestxml){
         try {
             conn = DatabaseConnection.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            return "数据库连接失败！";
+            errMessge+= "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -34,7 +35,7 @@ public class GET_JMPZ_HIS_USER {
         Element messageid=root.element("Header").element("MessageID");
 //            获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        String sql="select a.id,a.姓名 from 人员表 a,部门表 b, 部门人员 c where a.id=c.人员id and b.id=c.部门id and c.部门id=744";
+        String sql= "select a.id as HIS_USERID,a.姓名 as HIS_USERNAME from 人员表 a,部门表 b, 部门人员 c where a.id=c.人员id and b.id=c.部门id;";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -58,15 +59,26 @@ public class GET_JMPZ_HIS_USER {
                 rows++;
                 Element Rows=Body.addElement("Rows");
                 Element HIS_USERID=Rows.addElement("HIS_USERID");
-                HIS_USERID.addText(replaceNullString(resultSet.getString("id")));
+                HIS_USERID.addText(replaceNullString(resultSet.getString("HIS_USERID")));
                 Element HIS_USERNAME=Rows.addElement("HIS_USERNAME");
-                HIS_USERNAME.addText(replaceNullString(resultSet.getString("姓名")));
+                HIS_USERNAME.addText(replaceNullString(resultSet.getString("HIS_USERNAME")));
             }
             if (rows==0){
+                errMessge+="没有查询到数据！";
                 fail();
             }
         }catch (Exception e){
+            errMessge+=errMessge;
             fail();
+        }finally {
+            try {
+                conn.close();
+                resultSet.close();
+                preparedStatement.close();
+            }catch (Exception e){
+                errMessge+=e.getMessage();
+                fail();
+            }
         }
         return  document.asXML();
     }
@@ -90,7 +102,7 @@ public class GET_JMPZ_HIS_USER {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败");
+        MESSAGE.setText("失败"+errMessge);
         Element Rows=Body.addElement("Rows");
         Element HIS_USERID=Rows.addElement("HIS_USERID");
         HIS_USERID.addText(replaceNullString(""));

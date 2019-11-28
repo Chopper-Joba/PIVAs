@@ -19,7 +19,7 @@ public class DatabaseConnection {
             String password = properties.getProperty("datasource.password");
             Class.forName(driver);
             connection = DriverManager.getConnection(url, user, password);
-            System.out.println("成功连接数据库");
+            //System.out.println("成功连接数据库");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         } catch (SQLException e) {

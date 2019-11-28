@@ -17,13 +17,14 @@ public class GET_JMPZ_CKZL {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
+    String errMessage="";
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_CKZL(Document requestxml){
         try {
             conn = DatabaseConnection.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            return "数据库连接失败！";
+            errMessage+= "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -35,8 +36,8 @@ public class GET_JMPZ_CKZL {
         Element messageid=root.element("Header").element("MessageID");
 //            获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        String sql="select  distinct a.id,a.编码,a.名称 from 部门表 a,部门性质说明 b where " +
-                "a.id=b.部门id and b.工作性质 in ('试剂库房','配置中心','中药库','西药库','成药库','中药房','西药房','成药房','院外药房'）";
+        String sql= "select  distinct a.id as CKID,a.编码 as CKBH,a.名称 as CKNAME,null as CLASS_NO,null as BEACTIVE,null as NOTE " +
+                " from 部门表 a,部门性质说明 b where a.id=b.部门id and b.工作性质 in ('试剂库房','配置中心','中药库','西药库','成药库','中药房','西药房','成药房','院外药房'）";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -61,13 +62,13 @@ public class GET_JMPZ_CKZL {
                 Element Rows=Body.addElement("Rows");
                 //药房id
                 Element CKID= Rows.addElement("CKID");
-                CKID.addText(replaceNullString(resultSet.getString("id")));
+                CKID.addText(replaceNullString(resultSet.getString("CKID")));
                 //药房编码
                 Element CKBH= Rows.addElement("CKBH");
-                CKBH.addText(replaceNullString(resultSet.getString("编码")));
+                CKBH.addText(replaceNullString(resultSet.getString("CKBH")));
                 //药房名称
                 Element CKNAME= Rows.addElement("CKNAME");
-                CKNAME.addText(replaceNullString(resultSet.getString("名称")));
+                CKNAME.addText(replaceNullString(resultSet.getString("CKNAME")));
                 //分类
                 Element CLASS_NO= Rows.addElement("CLASS_NO");
                 CLASS_NO.addText(replaceNullString(""));
@@ -78,7 +79,13 @@ public class GET_JMPZ_CKZL {
                 Element NOTE= Rows.addElement("NOTE");
                 NOTE.addText(replaceNullString(""));
             }
+            if ( rows==0)
+            {
+                errMessage+="没有查询到数据！";
+                fail();
+            }
         }catch (Exception e){
+            errMessage+=e.getMessage();
             fail();
         }finally {
             try {
@@ -86,13 +93,15 @@ public class GET_JMPZ_CKZL {
                 resultSet.close();
                 preparedStatement.close();
             }catch (Exception e){
-                e.printStackTrace();
+                errMessage+=e.getMessage();
+                fail();
             }
         }
         return document.asXML();
     }
-    public  String replaceNullString(String str){
-        if (str==null){
+    public  String replaceNullString(String str)
+    {
+        if ("".equals(str)||str==null){
             return "";
         }
         else
@@ -111,7 +120,7 @@ public class GET_JMPZ_CKZL {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败");
+        MESSAGE.setText("失败!"+errMessage);
         Element Rows=Body.addElement("Rows");
         Element CKID= Rows.addElement("CKID");
         CKID.addText(replaceNullString(""));

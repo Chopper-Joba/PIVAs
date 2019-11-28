@@ -101,7 +101,7 @@ public class GET_JMPZ_DRUG_DICT {
                 //使用剂量
                 Element USEJLGG=Rows.addElement("USEJLGG");
                 USEJLGG.addText(replaceNullString(String.valueOf(resultSet.getDouble("USEJLGG"))));
-                System.out.println(String.valueOf(resultSet.getDouble("USEJLGG")));
+               // System.out.println(String.valueOf(resultSet.getDouble("USEJLGG")));
                 //使用单位
                 Element USEDW=Rows.addElement("USEDW");
                 USEDW.addText(replaceNullString(resultSet.getString("USEDW")));
@@ -122,13 +122,13 @@ public class GET_JMPZ_DRUG_DICT {
                 SHPCHD.addText(replaceNullString(resultSet.getString("SHPCHD")));
                 //修改时间
                 Element XGDATETIME=Rows.addElement("XGDATETIME");
-                XGDATETIME.addText(replaceNullString("XGDATETIME"));
+                XGDATETIME.addText(replaceNullString(resultSet.getString("XGDATETIME")));
                 //代码
                 Element CLASS_CODE=Rows.addElement("CLASS_CODE");
-                CLASS_CODE.addText(replaceNullString("CLASS_CODE"));
+                CLASS_CODE.addText(replaceNullString(resultSet.getString("CLASS_CODE")));
                 //合理用药审查的药品编号
                 Element SPBH_PASS=Rows.addElement("SPBH_PASS");
-                SPBH_PASS.addText(replaceNullString("SPBH_PASS"));
+                SPBH_PASS.addText(replaceNullString(resultSet.getString("SHPCHD")));
             }
             if (rows==0){
                 fail();

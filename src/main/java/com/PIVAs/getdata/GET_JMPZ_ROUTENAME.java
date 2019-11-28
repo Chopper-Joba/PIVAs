@@ -15,13 +15,14 @@ public class GET_JMPZ_ROUTENAME {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
+    String errMessage="";
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_ROUTENAME(Document requestxml){
         try {
             conn = DatabaseConnection.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            return "数据库连接失败！";
+            errMessage+= "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -33,7 +34,8 @@ public class GET_JMPZ_ROUTENAME {
         Element messageid=root.element("Header").element("MessageID");
         //获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        String sql="select id,编码,名称 from 诊疗项目目录 where 名称 in('静脉注射','静脉输液'）";
+        String sql="select id as ROUTENAMEID,编码 as ROUTENAMEBH,名称 as ROUTENAME,null as ROUTENAME_PASS " +
+                   "from 诊疗项目目录 where 名称 in('静脉注射','静脉输液'）";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -58,21 +60,23 @@ public class GET_JMPZ_ROUTENAME {
                 Element Rows=Body.addElement("Rows");
                 //给药方式id
                 Element ROUTENAMEID=Rows.addElement("ROUTENAMEID");
-                ROUTENAMEID.addText(replaceNullString(resultSet.getString("id")));
+                ROUTENAMEID.addText(replaceNullString(resultSet.getString("ROUTENAMEID")));
                 //给药方式编码
                 Element ROUTENAMEBH=Rows.addElement("ROUTENAMEBH");
-                ROUTENAMEBH.addText(replaceNullString(resultSet.getString("编码")));
+                ROUTENAMEBH.addText(replaceNullString(resultSet.getString("ROUTENAMEBH")));
                 //给药方式名称
                 Element ROUTENAME=Rows.addElement("ROUTENAME");
-                ROUTENAME.addText(replaceNullString(resultSet.getString("名称")));
+                ROUTENAME.addText(replaceNullString(resultSet.getString("ROUTENAME")));
                 //合理用药给药方式
                 Element ROUTENAME_PASS=Rows.addElement("ROUTENAME_PASS");
                 ROUTENAME_PASS.addText(replaceNullString(""));
             }
             if (rows==0){
+                errMessage+="没有查询到数据！";
                 fail();
             }
         }catch (Exception e){
+            errMessage+=e.getMessage();
             fail();
         }finally {
             try {
@@ -80,14 +84,15 @@ public class GET_JMPZ_ROUTENAME {
                 resultSet.close();
                 preparedStatement.close();
             }catch (Exception e){
-                e.printStackTrace();
+                errMessage+=e.getMessage();
+                fail();
             }
         }
-
         return document.asXML();
     }
-    public  String replaceNullString(String str){
-        if (str==null){
+    public  String replaceNullString(String str)
+    {
+        if ("".equals(str)||str==null){
             return "";
         }
         else
@@ -106,7 +111,7 @@ public class GET_JMPZ_ROUTENAME {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败");
+        MESSAGE.setText("失败!"+errMessage);
         Element Rows=Body.addElement("Rows");
         //给药方式id
         Element ROUTENAMEID=Rows.addElement("ROUTENAMEID");

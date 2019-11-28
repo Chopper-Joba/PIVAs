@@ -75,9 +75,8 @@ public class PUSH_JMPZ_PEIZHI {
             proc.setString(5, peizhi.getUSE_DATE());
             proc.setString(6, peizhi.getUSE_TIME());
             proc.setString(7, peizhi.getSPID());
-            proc.setString(7, peizhi.getSPID());
             proc.setBigDecimal(8, peizhi.getSHL_PEIZHI());
-            proc.setString(8, peizhi.getSEQID());
+            proc.setString(9, peizhi.getSEQID());
             proc.execute();
         }catch (Exception e){
             fail();
