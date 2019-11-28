@@ -66,7 +66,7 @@ public class GET_JMPZ_CKZL {
                 Element CKBH= Rows.addElement("CKBH");
                 CKBH.addText(replaceNullString(resultSet.getString("编码")));
                 //药房名称
-                Element CKNAME= Rows.addElement("CKBH");
+                Element CKNAME= Rows.addElement("CKNAME");
                 CKNAME.addText(replaceNullString(resultSet.getString("名称")));
                 //分类
                 Element CLASS_NO= Rows.addElement("CLASS_NO");

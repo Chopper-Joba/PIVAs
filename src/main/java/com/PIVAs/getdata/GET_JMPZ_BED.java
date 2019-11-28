@@ -35,7 +35,7 @@ public class GET_JMPZ_BED {
         messageId=replaceNullString(messageid.getText());
         String sql="select a.科室id,a.病人id,a.主页id,b.入院病床,c.名称 from 在院病人 a, " +
                 "病案主页 b,床位状况记录 d, 床位等级 c where a.病人id=b.病人id and a.主页id=b.主页id " +
-                "and a.病人id=d.病人id and c.序号=d.等级id and  a.病人id=87612";
+                "and a.病人id=d.病人id and c.序号=d.等级id ";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");

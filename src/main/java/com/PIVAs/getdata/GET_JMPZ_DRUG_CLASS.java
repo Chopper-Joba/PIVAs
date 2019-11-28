@@ -16,13 +16,14 @@ public class GET_JMPZ_DRUG_CLASS {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
+    private String errMessage="";
     private  String  seqId,sourceSystem,messageId;
     public  String GET_JMPZ_DRUG_CLASS(Document requestxml){
         try {
             conn = DatabaseConnection.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            return "数据库连接失败！";
+            errMessage= "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -56,16 +57,20 @@ public class GET_JMPZ_DRUG_CLASS {
             int rows = 0;
             while (resultSet.next()){
                 rows++;
+                //代码
                 Element Rows=Body.addElement("Rows");
                 Element CLASS_CODE= Rows.addElement("CLASS_CODE");
-                CLASS_CODE.addText("");
+                CLASS_CODE.addText("CLASS_CODE");
+                //属性名称
                 Element CLASS_NAME=Rows.addElement("CLASS_NAME");
-                CLASS_NAME.setText("");
+                CLASS_NAME.setText("CLASS_NAME");
             }
             if (rows==0){
+                errMessage+="没有查询到数据!";
                 fail();
             }
         }catch (Exception e){
+            errMessage+=e.getMessage();
             fail();
         }
 

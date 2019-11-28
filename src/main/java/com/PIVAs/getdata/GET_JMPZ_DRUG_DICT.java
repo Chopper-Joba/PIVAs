@@ -1,6 +1,7 @@
 package com.PIVAs.getdata;
 
 import com.PIVAs.dbconnection.DatabaseConnection;
+import com.ibm.wsdl.util.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -14,14 +15,14 @@ public class GET_JMPZ_DRUG_DICT {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
-    String message;
+    String errMessage="";
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_DRUG_DICT(Document requestxml){
         try {
             conn = DatabaseConnection.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            message= "数据库连接失败！";
+            errMessage+= "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -33,8 +34,27 @@ public class GET_JMPZ_DRUG_DICT {
         Element messageid=root.element("Header").element("MessageID");
         //获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        String sql="select a.药品id, a.编码,a.名称,c.通用名称,a.规格,a.售价单位,a.剂量系数, b.名称,a.批准文号,a.产地,c.剂量单位,a.药库单位" +
-                " from  药品目录 a,药品剂型 b,药品信息 c where a.药名ID=c.药名ID and c.剂型=b.编码 ";
+        String sql= "select a.药品id   as SPID,\n" +
+                        "       a.编码     as SPBH,\n" +
+                        "       a.名称     as SPMCH,\n" +
+                        "       null       as ENGLISH_NAME,\n" +
+                        "       c.通用名称 as TONGYMCH,\n" +
+                        "       a.规格     as SHPGG,\n" +
+                        "       a.售价单位 as DW,\n" +
+                        "       a.剂量系数 as USEJLGG,\n" +
+                        "        c.剂量单位   as USEDW,\n" +
+                        "       a.药库单位 as PACKET_DW,\n" +
+                        "       b.名称 as  JIXING,\n" +
+                        "       zlspellcode( a.名称) as PYM,"+
+                        "       a.批准文号 as PIZHWH,\n" +
+                        "       a.产地 as SHPCHD,\n" +
+                        "       null as XGDATETIME,\n" +
+                        "       null  as CLASS_CODE,\n" +
+                        "       null as SPBH_PASS\n" +
+                        "  from 药品目录 a, 药品剂型 b, 药品信息 c\n" +
+                        "  where a.药名ID = c.药名ID\n" +
+                        "   and c.剂型 = b.编码\n" +
+                        "   and b.编码 in (2, 3, 13, 20, 21, 28, 32)";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -59,67 +79,70 @@ public class GET_JMPZ_DRUG_DICT {
                 Element Rows=Body.addElement("Rows");
                 //商品 ID
                 Element SPID=Rows.addElement("SPID");
-                SPID.addText(replaceNullString(resultSet.getString("药品id")));
+                SPID.addText(replaceNullString(resultSet.getString("SPID")));
                 //商品编号
                 Element SPBH=Rows.addElement("SPBH");
-                SPBH.addText(replaceNullString(resultSet.getString("编码")));
+                SPBH.addText(replaceNullString(resultSet.getString("SPBH")));
                 //商品名称
                 Element SPMCH=Rows.addElement("SPMCH");
-                SPMCH.addText(replaceNullString(resultSet.getString("名称")));
+                SPMCH.addText(replaceNullString(resultSet.getString("SPMCH")));
                 //英文名称
                 Element ENGLISH_NAME=Rows.addElement("ENGLISH_NAME");
-                ENGLISH_NAME.addText(replaceNullString(""));
+                ENGLISH_NAME.addText(replaceNullString("ENGLISH_NAME"));
                 //通用名称
                 Element TONGYMCH=Rows.addElement("TONGYMCH");
-                TONGYMCH.addText(replaceNullString(resultSet.getString("通用名称")));
+                TONGYMCH.addText(replaceNullString(resultSet.getString("TONGYMCH")));
                 //商品规格
                 Element SHPGG=Rows.addElement("SHPGG");
-                SHPGG.addText(replaceNullString(resultSet.getString("规格")));
+                SHPGG.addText(replaceNullString(resultSet.getString("SHPGG")));
                 //单位
                 Element DW=Rows.addElement("DW");
-                DW.addText(replaceNullString(resultSet.getString("售价单位")));
+                DW.addText(replaceNullString(resultSet.getString("DW")));
                 //使用剂量
                 Element USEJLGG=Rows.addElement("USEJLGG");
-                USEJLGG.addText(replaceNullString(resultSet.getString("剂量系数")));
+                USEJLGG.addText(replaceNullString(String.valueOf(resultSet.getDouble("USEJLGG"))));
+                System.out.println(String.valueOf(resultSet.getDouble("USEJLGG")));
                 //使用单位
                 Element USEDW=Rows.addElement("USEDW");
-                USEDW.addText(replaceNullString(resultSet.getString("剂量单位")));
+                USEDW.addText(replaceNullString(resultSet.getString("USEDW")));
                 //大包装单位
                 Element PACKET_DW=Rows.addElement("PACKET_DW");
-                PACKET_DW.addText(replaceNullString(resultSet.getString("药库单位")));
+                PACKET_DW.addText(replaceNullString(resultSet.getString("PACKET_DW")));
                 //剂型
                 Element JIXING=Rows.addElement("JIXING");
-                JIXING.addText(replaceNullString(resultSet.getString("名称")));
+                JIXING.addText(replaceNullString(resultSet.getString("JIXING")));
                 //拼音码
                 Element PYM=Rows.addElement("PYM");
-                PYM.addText(replaceNullString(""));
+                PYM.addText(replaceNullString("PYM"));
                 //批准文号
                 Element PIZHWH=Rows.addElement("PIZHWH");
-                PIZHWH.addText(replaceNullString(resultSet.getString("批准文号")));
+                PIZHWH.addText(replaceNullString(resultSet.getString("PIZHWH")));
                 //药品产地
                 Element SHPCHD=Rows.addElement("SHPCHD");
-                SHPCHD.addText(replaceNullString(resultSet.getString("产地")));
+                SHPCHD.addText(replaceNullString(resultSet.getString("SHPCHD")));
                 //修改时间
                 Element XGDATETIME=Rows.addElement("XGDATETIME");
-                XGDATETIME.addText(replaceNullString(""));
+                XGDATETIME.addText(replaceNullString("XGDATETIME"));
                 //代码
                 Element CLASS_CODE=Rows.addElement("CLASS_CODE");
-                CLASS_CODE.addText(replaceNullString(""));
+                CLASS_CODE.addText(replaceNullString("CLASS_CODE"));
                 //合理用药审查的药品编号
                 Element SPBH_PASS=Rows.addElement("SPBH_PASS");
-                SPBH_PASS.addText(replaceNullString(""));
+                SPBH_PASS.addText(replaceNullString("SPBH_PASS"));
             }
             if (rows==0){
                 fail();
+                errMessage+="没有查询到数据！";
             }
         }catch (Exception e){
-            message+=e.getMessage();
+            errMessage+=e.getMessage();
             fail();
         }
         return document.asXML();
     }
     public  String replaceNullString(String str){
-        if (str==null){
+//        if (str==null){
+        if ("".equals(str)||str==null){
             return "";
         }
         else
@@ -138,7 +161,7 @@ public class GET_JMPZ_DRUG_DICT {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败!"+message);
+        MESSAGE.setText("失败!"+errMessage);
         Element Rows=Body.addElement("Rows");
         //商品 ID
         Element SPID=Rows.addElement("SPID");

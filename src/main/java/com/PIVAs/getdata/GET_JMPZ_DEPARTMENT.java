@@ -15,13 +15,14 @@ public class GET_JMPZ_DEPARTMENT {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
+    private String errMessage="";
     private  String  seqId,sourceSystem,messageId;
     public  String GET_JMPZ_DEPARTMENT(Document requestxml){
         try {
             conn = DatabaseConnection.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            return "数据库连接失败！";
+            errMessage= "数据库连接失败！";
         }  Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
 //           获取入参的SEQID节点的值
@@ -66,6 +67,7 @@ public class GET_JMPZ_DEPARTMENT {
                 fail();
             }
         }catch (Exception e){
+            errMessage=e.getMessage();
             fail();
         }finally {
             try {
@@ -98,7 +100,7 @@ public class GET_JMPZ_DEPARTMENT {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败");
+        MESSAGE.setText("失败!"+errMessage);
         Element Rows=Body.addElement("Rows");
         Element DEPARTMENT_NO=Rows.addElement("DEPARTMENT_NO");
         DEPARTMENT_NO.setText(replaceNullString(""));
