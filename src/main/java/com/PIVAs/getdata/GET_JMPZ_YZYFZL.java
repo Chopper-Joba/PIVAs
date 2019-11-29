@@ -75,6 +75,7 @@ public class GET_JMPZ_YZYFZL {
                     frequency_pass.addText(ReplaceNullStringUtil.replaceNullString(resultSet.getString("frequency_pass")));
                 }
                 if (resultSet.getRow() == 0) {
+                    errMessage.append("没有查询到数据");
                     fail();
                 }
             } catch (Exception e) {
@@ -91,7 +92,7 @@ public class GET_JMPZ_YZYFZL {
     }
 
     public String replaceNullString(String str) {
-        if (str == null) {
+        if ("".equals(str)||str == null) {
             return "";
         } else
             return str;
