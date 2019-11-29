@@ -15,6 +15,7 @@ public class GET_JMPZ_YZYFZL {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
+    String errMessage="";
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_YZYFZL(Document requestxml){
         try {
@@ -33,7 +34,8 @@ public class GET_JMPZ_YZYFZL {
         Element messageid=root.element("Header").element("MessageID");
         //获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        String sql="";
+        String sql="select a.编码 as YFBH, a.名称 as YFNAME, a.频率次数 as YFNUM,\n" +
+                "a.频率间隔 as YFTS,null as YFZXSJ,null as frequency_pass from  诊疗频率项目 a";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");

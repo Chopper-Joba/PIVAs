@@ -15,13 +15,14 @@ public class GET_JMPZ_CKSPKC {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
+    String errMessage="";
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_CKSPKC(Document requestxml){
         try {
             conn = DatabaseConnection.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            return "数据库连接失败！";
+            errMessage+= "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -33,7 +34,9 @@ public class GET_JMPZ_CKSPKC {
         Element messageid=root.element("Header").element("MessageID");
 //            获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        String sql="select a.库房id,a.药品id,a.上次产地 ,a.可用数量 , a.实际数量 ,b.指导零售价 from  药品目录 b,药品库存 a where a.药品id=b.药品id  and a.药品id=37022";
+        String sql= "select a.药品id as SPID, a.库房id as CKID,a.上次产地 as SHENGCCJ ,null as IS_HEGE,a.可用数量 as CKSHL ," +
+                " a.实际数量 as CKSHL_actual, null as KCSX,null as KCXX,b.指导零售价 as COSTS_DJ,null as JWH " +
+                "from  药品目录 b,药品库存 a,药品信息 c where a.药品id=b.药品id  and b.药名ID=c.药名ID  and c.剂型 in (2, 3, 13, 20, 21, 28, 32)\n";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -57,37 +60,44 @@ public class GET_JMPZ_CKSPKC {
                 rows++;
                 Element Rows=Body.addElement("Rows");
                 Element SPID=Rows.addElement("SPID");
-                SPID.addText(replaceNullString(resultSet.getString("药品id")));
+                SPID.addText(replaceNullString(resultSet.getString("SPID")));
                 Element CKID=Rows.addElement("CKID");
-                CKID.addText(replaceNullString(resultSet.getString("库房id")));
+                CKID.addText(replaceNullString(resultSet.getString("CKID")));
                 Element SHENGCCJ=Rows.addElement("SHENGCCJ");
-                SHENGCCJ.addText(replaceNullString(resultSet.getString("上次产地")));
+                SHENGCCJ.addText(replaceNullString(resultSet.getString("SHENGCCJ")));
                 Element IS_HEGE=Rows.addElement("IS_HEGE");
                 IS_HEGE.addText("是");
                 Element CKSHL=Rows.addElement("CKSHL");
-                CKSHL.addText(replaceNullString(resultSet.getString("可用数量")));
+                CKSHL.addText(replaceNullString(resultSet.getString("CKSHL")));
                 Element CKSHL_actual=Rows.addElement("CKSHL_actual");
-                CKSHL_actual.addText(replaceNullString(resultSet.getString("实际数量")));
+                CKSHL_actual.addText(replaceNullString(resultSet.getString("CKSHL_actual")));
                 Element KCSX=Rows.addElement("KCSX");
                 KCSX.addText(replaceNullString(""));
                 Element KCXX=Rows.addElement("KCXX");
                 KCXX.addText(replaceNullString(""));
                 Element COSTS_DJ=Rows.addElement("COSTS_DJ");
-                COSTS_DJ.addText(replaceNullString(resultSet.getString("指导零售价")));
+                COSTS_DJ.addText(replaceNullString(resultSet.getString("COSTS_DJ")));
                 Element JWH=Rows.addElement("JWH");
                 JWH.addText(replaceNullString(""));
             }
             if (rows==0){
+                errMessage+="没有查询到数据！";
                 fail();
             }
         }catch (Exception e){
-
+            errMessage+=e.getMessage();
+            fail();
+        }
+        finally {
+              DatabaseConnection.close(conn);
+              DatabaseConnection.close(preparedStatement);
+              DatabaseConnection.close(resultSet);
         }
         return document.asXML();
 
     }
     public  String replaceNullString(String str){
-        if (str==null){
+        if ("".equals(str)||str==null){
             return "";
         }
         else
@@ -106,7 +116,7 @@ public class GET_JMPZ_CKSPKC {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败");
+        MESSAGE.setText("失败!"+errMessage);
         Element Rows=Body.addElement("Rows");
         Element SPID=Rows.addElement("SPID");
         SPID.addText(replaceNullString(""));

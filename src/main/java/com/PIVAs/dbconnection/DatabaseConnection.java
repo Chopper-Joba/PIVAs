@@ -39,7 +39,7 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
     }
-    public static void close(PreparedStatement preparedStatement ) {
+    public static void close(PreparedStatement preparedStatement) {
         try {
             if (preparedStatement != null) {
                 preparedStatement.close();
