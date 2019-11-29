@@ -77,16 +77,15 @@ public class GET_JMPZ_YZYFZL {
                 if (resultSet.getRow() == 0) {
                     fail();
                 }
-
             } catch (Exception e) {
                 errMessage.append(e.getMessage());
                 fail();
-            } finally {
-                DatabaseConnection.close(conn, preparedStatement, resultSet);
             }
         } catch (IOException e1) {
             // TODO Auto-generated catch block
             return "数据库连接失败！";
+        }finally {
+            DatabaseConnection.close(conn, preparedStatement, resultSet);
         }
         return document.asXML();
     }
