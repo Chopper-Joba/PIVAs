@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class GET_JMPZ_DISPENSE_REC_COUNT {
     Connection conn=null;
@@ -33,11 +36,25 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
         Element messageid=root.element("Header").element("MessageID");
         //获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        String sql="";
+        StringBuilder sql=new StringBuilder("select distinct a.NO as DISPENSING_XH, a.审核日期 as DISPENSING_DATE_TIME,a.库房ID as DISPENSARY,b.序号 as DISPENSE_AMOUNT\n" +
+                "from  药品收发记录 a,(select NO, max(序号) as 序号 from  药品收发记录 where 入出系数=-1 group by NO) b\n" +
+                "where 入出系数=-1 and a.NO=b.NO");
+
+        long current = System.currentTimeMillis();
+        long todyZero = current / (1000 * 3600 * 24) * (1000 * 3600 * 24) - TimeZone.getDefault().getRawOffset();
+        long todyTwelve = todyZero + 24 * 60 * 60 * 1000 - 1;
+        //昨天零点
+        Date startTime=new Timestamp(todyZero-24 * 60 * 60 * 1000);
+        //今晚12点
+        Date endTime=new Timestamp(todyTwelve);
+        sql.append(" and to_char(a.审核日期,'yyyy-MM-dd')>=?");
+        sql.append(" and to_char(a.审核日期,'yyyy-MM-dd')<=?");
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
-            preparedStatement = conn.prepareStatement(sql);
+            preparedStatement = conn.prepareStatement(sql.toString());
+            preparedStatement.setString(1,startTime.toString());
+            preparedStatement.setString(2,startTime.toString());
             resultSet = preparedStatement.executeQuery();
             Element Request = document.addElement("Request");
             Element Header = Request.addElement("Header");
@@ -58,25 +75,27 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
                 Element Rows=Body.addElement("Rows");
                 //摆药单号
                 Element DISPENSING_XH=Rows.addElement("DISPENSING_XH");
-                DISPENSING_XH.addText(replaceNullString(""));
+                DISPENSING_XH.addText(replaceNullString(resultSet.getString("DISPENSING_XH")));
                 //摆药日期时间
                 Element DISPENSING_DATE_TIME=Rows.addElement("DISPENSING_DATE_TIME");
-                DISPENSING_DATE_TIME.addText(replaceNullString(""));
+                DISPENSING_DATE_TIME.addText(replaceNullString(resultSet.getString("DISPENSING_DATE_TIME")));
                 //发药药房 ID
                 Element DISPENSARY=Rows.addElement("DISPENSARY");
-                DISPENSARY.addText(replaceNullString(""));
+                DISPENSARY.addText(replaceNullString(resultSet.getString("DISPENSARY")));
                 //时间段内发药总条数
                 Element DISPENSE_AMOUNT=Rows.addElement("DISPENSE_AMOUNT");
-                DISPENSE_AMOUNT.addText(replaceNullString(""));
+                DISPENSE_AMOUNT.addText(replaceNullString(resultSet.getString("DISPENSE_AMOUNT")));
             }
             if (rows==0){
                 fail();
             }
         }catch (Exception e){
             fail();;
+        }finally {
+            DatabaseConnection.close(conn,preparedStatement,resultSet);
         }
 
-        return null;
+        return document.asXML();
     }
     public  String replaceNullString(String str){
         if (str==null){
