@@ -16,6 +16,7 @@ public class GET_JMPZ_ORDERS {
     ResultSet resultSet;
     Document document=null;
     private  String  seqId,sourceSystem,messageId;
+    StringBuilder errMessage=new StringBuilder("");
     public String GET_JMPZ_ORDERS(Document requestxml){
         try {
             conn = DatabaseConnection.getConnection();
@@ -92,11 +93,10 @@ public class GET_JMPZ_ORDERS {
                 "\" where a.诊疗类别=b.编码\\n\" + \n" +
                 "\" and a.收费细目id=c.药品id\\n\" + \n" +
                 "\" and a.执行科室id =d.id\";\n";
-    if(deptCode==null||deptCode.equals(""))
-    {
-        sql+=" and a.开嘱时间> to_date( '"+starttime+"','yyyy-mm-dd hh24:mi:ss')";
-        sql+=" and ";
-    }
+        if(deptCode==null||"".equals(deptCode)) {
+            sql+=" and a.开嘱时间> to_date( '"+starttime+"','yyyy-mm-dd hh24:mi:ss')";
+            sql+=" and ";
+        }
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -121,128 +121,132 @@ public class GET_JMPZ_ORDERS {
                 Element Rows = Body.addElement("Rows");
                 //项目代码
                 Element ITEM_CODE=Rows.addElement("ITEM_CODE");
-                ITEM_CODE.addText(replaceNullString(""));
+                ITEM_CODE.addText(replaceNullString(resultSet.getString("ITEM_CODE")));
                 //项目数量
                 Element AMOUNT=Rows.addElement("AMOUNT");
-                AMOUNT.addText(replaceNullString(""));
+                AMOUNT.addText(replaceNullString(resultSet.getString("AMOUNT")));
                 //病人 ID
                 Element PATIENT_ID=Rows.addElement("PATIENT_ID");
-                PATIENT_ID.addText(replaceNullString(""));
+                PATIENT_ID.addText(replaceNullString(resultSet.getString("PATIENT_ID")));
                 //本次住院标识
                 Element VISIT_ID=Rows.addElement("VISIT_ID");
-                VISIT_ID.addText(replaceNullString(""));
+                VISIT_ID.addText(replaceNullString(resultSet.getString("VISIT_ID")));
                 //医嘱组号
                 Element ORDER_NO=Rows.addElement("ORDER_NO");
-                ORDER_NO.addText(replaceNullString(""));
+                ORDER_NO.addText(replaceNullString(resultSet.getString("ORDER_NO")));
                 //医嘱子序号
                 Element ORDER_SUB_NO=Rows.addElement("ORDER_SUB_NO");
-                ORDER_SUB_NO.addText(replaceNullString(""));
+                ORDER_SUB_NO.addText(replaceNullString(resultSet.getString("ORDER_SUB_NO")));
                 //长期/临时医嘱标志
                 Element REPEAT_INDICATOR=Rows.addElement("REPEAT_INDICATOR");
-                REPEAT_INDICATOR.addText(replaceNullString(""));
+                REPEAT_INDICATOR.addText(replaceNullString(resultSet.getString("REPEAT_INDICATOR")));
                 //医嘱类别（1）
                 Element ORDER_CLASS=Rows.addElement("ORDER_CLASS");
-                ORDER_CLASS.addText(replaceNullString(""));
+                ORDER_CLASS.addText(replaceNullString(resultSet.getString("ORDER_CLASS")));
                 //药品代码
                 Element ORDER_CODE=Rows.addElement("ORDER_CODE");
-                ORDER_CODE.addText(replaceNullString(""));
+                ORDER_CODE.addText(replaceNullString(resultSet.getString("ORDER_CODE")));
                 //药品一次使用剂量（计量）
                 Element DOSAGE=Rows.addElement("DOSAGE");
-                DOSAGE.addText(replaceNullString(""));
+                DOSAGE.addText(replaceNullString(resultSet.getString("DOSAGE")));
                 //剂量单位（计量）
                 Element DOSAGE_UNITS=Rows.addElement("DOSAGE_UNITS");
-                DOSAGE_UNITS.addText(replaceNullString(""));
+                DOSAGE_UNITS.addText(replaceNullString(resultSet.getString("DOSAGE_UNITS")));
                 //给药途径和方法
                 Element ROUTENAME=Rows.addElement("ROUTENAME");
-                ROUTENAME.addText(replaceNullString(""));
+                ROUTENAME.addText(replaceNullString(resultSet.getString("ROUTENAME")));
                 //医嘱开始日期及时间（确认时间）
                 Element START_DATE_TIME=Rows.addElement("START_DATE_TIME");
-                START_DATE_TIME.addText(replaceNullString(""));
+                START_DATE_TIME.addText(replaceNullString(resultSet.getString("START_DATE_TIME")));
                 //医嘱发送到静配中心时间
                 Element AUDITING_DATE=Rows.addElement("AUDITING_DATE");
-                AUDITING_DATE.addText(replaceNullString(""));
+                AUDITING_DATE.addText(replaceNullString(resultSet.getString("AUDITING_DATE")));
                 //停止日期及时间（停止时间）
                 Element STOP_DATE_TIME=Rows.addElement("STOP_DATE_TIME");
-                STOP_DATE_TIME.addText(replaceNullString(""));
+                STOP_DATE_TIME.addText(replaceNullString(resultSet.getString("STOP_DATE_TIME")));
                 //摆药截止日期时间
                 Element LAST_PERFORM_DATE_TIME=Rows.addElement("LAST_PERFORM_DATE_TIME");
-                LAST_PERFORM_DATE_TIME.addText(replaceNullString(""));
+                LAST_PERFORM_DATE_TIME.addText(replaceNullString(resultSet.getString("LAST_PERFORM_DATE_TIME")));
                 //持续时间
                 Element DURATION=Rows.addElement("DURATION");
-                DURATION.addText(replaceNullString(""));
+                DURATION.addText(replaceNullString(resultSet.getString("DURATION")));
                 //持续时间单位
                 Element DURATION_UNITS=Rows.addElement("DURATION_UNITS");
-                DURATION_UNITS.addText(replaceNullString(""));
+                DURATION_UNITS.addText(replaceNullString(resultSet.getString("DURATION_UNITS")));
                 //执行频率描述(频次)
                 Element FREQUENCY=Rows.addElement("FREQUENCY");
-                FREQUENCY.addText(replaceNullString(""));
+                FREQUENCY.addText(replaceNullString(resultSet.getString("FREQUENCY")));
                 //频率次数
                 Element FREQ_COUNTER=Rows.addElement("FREQ_COUNTER");
-                FREQ_COUNTER.addText(replaceNullString(""));
+                FREQ_COUNTER.addText(replaceNullString(resultSet.getString("FREQ_COUNTER")));
                 //频率间隔
                 Element FREQ_INTERVAL=Rows.addElement("FREQ_INTERVAL");
-                FREQ_INTERVAL.addText(replaceNullString(""));
+                FREQ_INTERVAL.addText(replaceNullString(resultSet.getString("FREQ_INTERVAL")));
                 //频率间隔单位（单位固定为“日”）
                 Element FREQ_INTERVAL_UNIT=Rows.addElement("FREQ_INTERVAL_UNIT");
-                FREQ_INTERVAL_UNIT.addText(replaceNullString(""));
+                FREQ_INTERVAL_UNIT.addText(replaceNullString(resultSet.getString("FREQ_INTERVAL_UNIT")));
                 //执行时间详细描述(医嘱详细描述)（null）
                 Element FREQ_DETAIL=Rows.addElement("FREQ_DETAIL");
-                FREQ_DETAIL.addText(replaceNullString(""));
+                FREQ_DETAIL.addText(replaceNullString(resultSet.getString("FREQ_DETAIL")));
                 //医嘱执行时间
                 Element PERFORM_SCHEDULE=Rows.addElement("PERFORM_SCHEDULE");
-                PERFORM_SCHEDULE.addText(replaceNullString(""));
+                PERFORM_SCHEDULE.addText(replaceNullString(resultSet.getString("PERFORM_SCHEDULE")));
                 //开医嘱科室名称汉字
                 Element ORDERING_DEPT=Rows.addElement("ORDERING_DEPT");
-                ORDERING_DEPT.addText(replaceNullString(""));
+                ORDERING_DEPT.addText(replaceNullString(resultSet.getString("ORDERING_DEPT")));
                 //医生姓名
                 Element DOCTOR=Rows.addElement("DOCTOR");
-                DOCTOR.addText(replaceNullString(""));
+                DOCTOR.addText(replaceNullString(resultSet.getString("DOCTOR")));
                 //停医嘱医生
                 Element STOP_DOCTOR=Rows.addElement("STOP_DOCTOR");
-                STOP_DOCTOR.addText(replaceNullString(""));
+                STOP_DOCTOR.addText(replaceNullString(resultSet.getString("STOP_DOCTOR")));
                 //医嘱状态
                 Element ORDER_STATUS=Rows.addElement("ORDER_STATUS");
-                ORDER_STATUS.addText(replaceNullString(""));
+                ORDER_STATUS.addText(replaceNullString(resultSet.getString("ORDER_STATUS")));
                 //计价属性
                 Element BILLING_ATTR=Rows.addElement("BILLING_ATTR");
-                BILLING_ATTR.addText(replaceNullString(""));
+                BILLING_ATTR.addText(replaceNullString(resultSet.getString("BILLING_ATTR")));
                 //医院要求只能次日长期医嘱为“C”临时医嘱为“D”
                 Element LYFS=Rows.addElement("LYFS");
-                LYFS.addText(replaceNullString(""));
+                LYFS.addText(replaceNullString(resultSet.getString("LYFS")));
                 //停止日期（不带时间的结束日期）
                 Element END_DATE=Rows.addElement("END_DATE");
-                END_DATE.addText(replaceNullString(""));
+                END_DATE.addText(replaceNullString(resultSet.getString("END_DATE")));
                 //开始日期（不带时间的开始日期）
                 Element START_DATE=Rows.addElement("START_DATE");
-                START_DATE.addText(replaceNullString(""));
+                START_DATE.addText(replaceNullString(resultSet.getString("START_DATE")));
                 // 审查人
                 Element CHECKER=Rows.addElement("CHECKER");
-                CHECKER.addText(replaceNullString(""));
+                CHECKER.addText(replaceNullString(resultSet.getString("CHECKER")));
                 // 审查日期
                 Element CHECKER_DATE=Rows.addElement("CHECKER_DATE");
-                CHECKER_DATE.addText(replaceNullString(""));
+                CHECKER_DATE.addText(replaceNullString(resultSet.getString("CHECKER_DATE")));
                 // 科室代码
                 Element DEPT_CODE=Rows.addElement("DEPT_CODE");
-                DEPT_CODE.addText(replaceNullString(""));
+                DEPT_CODE.addText(replaceNullString(resultSet.getString("DEPT_CODE")));
                 // 申请发药仓库ID
                 Element CKID=Rows.addElement("CKID");
-                CKID.addText(replaceNullString(""));
+                CKID.addText(replaceNullString(resultSet.getString("CKID")));
                 //药品配置方式(1 是冲配、2 领 配)
                 Element PZFS_HIS=Rows.addElement("PZFS_HIS");
-                PZFS_HIS.addText(replaceNullString(""));
+                PZFS_HIS.addText(replaceNullString(resultSet.getString("PZFS_HIS")));
                 //药品配置批次(1,2,3,4,5)
                 Element PZPC_HIS=Rows.addElement("PZPC_HIS");
-                PZPC_HIS.addText(replaceNullString(""));
+                PZPC_HIS.addText(replaceNullString(resultSet.getString("PZPC_HIS")));
                 //医嘱名称
                 Element ORDER_NAME=Rows.addElement("ORDER_NAME");
-                ORDER_NAME.addText(replaceNullString(""));
+                ORDER_NAME.addText(replaceNullString(resultSet.getString("ORDER_NAME")));
+            }
+            if (resultSet.getRow()==0){
+                fail();
             }
         }catch (Exception e){
-
+            errMessage.append(e.getMessage());
+            fail();
+        }finally {
+            DatabaseConnection.close(conn,preparedStatement,resultSet);
         }
-
-
-        return null;
+        return document.asXML();
     }
     public  String replaceNullString(String str){
         if (str==null){
@@ -264,7 +268,7 @@ public class GET_JMPZ_ORDERS {
         Element CODE = Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE = Body.addElement("MESSAGE");
-        MESSAGE.setText("失败");
+        MESSAGE.setText("失败:"+errMessage);
         Element Rows = Body.addElement("Rows");
         Element ITEM_CODE=Rows.addElement("ITEM_CODE");
         ITEM_CODE.addText(replaceNullString(""));
