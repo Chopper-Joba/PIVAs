@@ -59,4 +59,9 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
     }
+    public static void close(Connection conn,PreparedStatement preparedStatement,ResultSet resultSet){
+        close(conn);
+        close(preparedStatement);
+        close(resultSet);
+    }
 }

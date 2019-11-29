@@ -1,8 +1,8 @@
 package com.PIVAs.util;
 
 public class ReplaceNullStringUtil {
-    public static String rReplaceNullString(String value){
-        if (value==null||value.equals("null")){
+    public static String replaceNullString(String value){
+        if (value==null||"null".equals(value)||"".equals(value)){
             return "";
         }else {
             return value;
