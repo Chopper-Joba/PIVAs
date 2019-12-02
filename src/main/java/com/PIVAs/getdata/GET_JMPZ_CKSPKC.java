@@ -116,7 +116,7 @@ public class GET_JMPZ_CKSPKC {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败!"+errMessage);
+        MESSAGE.setText("失败");
         Element Rows=Body.addElement("Rows");
         Element SPID=Rows.addElement("SPID");
         SPID.addText(replaceNullString(""));

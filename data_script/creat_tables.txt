@@ -15,9 +15,9 @@
 	SEQID Varchar(100)
 	)
 
-	create sequence PUSH_JMPZ_PZFY_ID start with 1 order;
 	alter table PUSH_JMPZ_PZFY add constraint PUSH_JMPZ_PZFY_PK primary key (ID);
-
+    create public synonym PUSH_JMPZ_PZFY for zlhis.PUSH_JMPZ_PZFY;
+    grant all on PUSH_JMPZ_PZFY to PUBLIC;
 
 2.PUSH_JMPZ_ORDERS_CHECK
 
@@ -33,6 +33,8 @@
 
 	create sequence PUSH_JMPZ_ORDERS_CHECK_ID start with 1 order;
 	alter table PUSH_JMPZ_ORDERS_CHECK add constraint PUSH_JMPZ_ORDERS_CHECK_PK primary key (ID);
+    create public synonym PUSH_JMPZ_ORDERS_CHECK for zlhis.PUSH_JMPZ_ORDERS_CHECK;
+    grant all on PUSH_JMPZ_ORDERS_CHECK to PUBLIC;
 	
 3.PUSH_JMPZ_PEIZHI
 
@@ -51,7 +53,8 @@
 
 	create sequence PUSH_JMPZ_PEIZHI＿ID start with 1 order;
 	alter table PUSH_JMPZ_PEIZHI add constraint PUSH_JMPZ_PEIZHI primary key (ID);
-
+    create public synonym PUSH_JMPZ_PEIZHI for zlhis.PUSH_JMPZ_PEIZHI;
+    grant all on PUSH_JMPZ_PEIZHI to PUBLIC;
 /
 
 1.PUSH_JMPZ_ORDERS_CHECK_INS
