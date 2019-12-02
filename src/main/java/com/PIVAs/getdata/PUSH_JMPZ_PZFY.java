@@ -5,6 +5,8 @@ import com.PIVAs.dbconnection.DatabaseConnection;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -13,6 +15,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
 public class PUSH_JMPZ_PZFY {
+    private static final Logger LOG = LoggerFactory.getLogger(GET_JMPZ_DISPENSE_REC_COUNT.class);
     Connection conn=null;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
@@ -69,7 +72,7 @@ public class PUSH_JMPZ_PZFY {
         //获取入参Createtime的值
         Element createtime=root.element("Body").element("Createtime");
         try {
-            pzfy.setCreatetime(new SimpleDateFormat("yyyy-mm--dd hh:mi:ss").parse(createtime.getText()));
+            pzfy.setCreatetime(new SimpleDateFormat("yyyy-mm-dd hh:mi:ss").parse(createtime.getText()));
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -96,54 +99,37 @@ public class PUSH_JMPZ_PZFY {
             proc.setDate(11, (java.sql.Date) pzfy.getCreatetime());
             proc.setString(12,pzfy.getSEQID());
 
+            LOG.warn(pzfy.toString());
 
-            System.out.println("------------");
-            System.out.println(pzfy.getID());
-            System.out.println(pzfy.getPATIENT_ID());
-            System.out.println(pzfy.getVISIT_ID());
-            System.out.println(pzfy.getORDER_ID());
-            System.out.println(pzfy.getDepartment_no());
-            System.out.println(pzfy.getItem_no());
-            System.out.println(pzfy.getDevNo());
-            System.out.println(pzfy.getNum());
-            System.out.println(pzfy.getCosts());
-            System.out.println(pzfy.getDEMO());
-            System.out.println((java.sql.Date)pzfy.getCreatetime());
-            System.out.println(pzfy.getSEQID());
-
-
-            proc.execute();
-            Element Request = document.addElement("Request");
-            Element Header = Request.addElement("Header");
-            Element SourceSystem = Header.addElement("SourceSystem");
-            SourceSystem.setText(sourceSystem);
-            Element MessageID = Header.addElement("MessageID");
-            MessageID.setText(messageId);
-            Element Body = Request.addElement("Body");
-            Element CODE = Body.addElement("CODE");
-            CODE.setText(replaceNullString("0"));
-            Element MESSAGE = Body.addElement("MESSAGE");
-            MESSAGE.setText("成功");
-                //查询数据返回
-                String test="";
-                try {
-                    preparedStatement = conn.prepareStatement(test);
-                    resultSet=preparedStatement.executeQuery();
-                }catch (Exception eee){
-                    fail();
-                }
+            Boolean successINS =proc.execute();
+            if (successINS){
+                Element Request = document.addElement("Request");
+                Element Header = Request.addElement("Header");
+                Element SourceSystem = Header.addElement("SourceSystem");
+                SourceSystem.setText(sourceSystem);
+                Element MessageID = Header.addElement("MessageID");
+                MessageID.setText(messageId);
+                Element Body = Request.addElement("Body");
+                Element CODE = Body.addElement("CODE");
+                CODE.setText(replaceNullString("0"));
+                Element MESSAGE = Body.addElement("MESSAGE");
+                MESSAGE.setText("成功");
                 //HIS收费时间
                 Element UpdateDate=Body.addElement("UpdateDate");
-                UpdateDate.setText(replaceNullString(""));
+                UpdateDate.setText(replaceNullString(pzfy.getCreatetime().toString()));
                 //HIS 系统收费执行标志
                 Element Flag=Body.addElement("Flag");
-                Flag.setText(replaceNullString(""));
+                Flag.setText(replaceNullString("0"));
                 //ID
                 Element ID=Body.addElement("ID");
                 ID.setText(replaceNullString(String.valueOf(pzfy.getID())));
+            }else {
+                LOG.error("存储过程:PUSH_JMPZ_PZFY_INS 数据存储失败");
+                fail();
+            }
 
         }catch (Exception e){
-            e.printStackTrace();
+            LOG.error(e.getMessage());
            fail();
         }
         return document.asXML();
@@ -156,6 +142,26 @@ public class PUSH_JMPZ_PZFY {
             return str;
     }
     public void fail(){
-
+        document = DocumentHelper.createDocument();
+        document.setXMLEncoding("utf-8");
+        Element Request = document.addElement("Request");
+        Element Header = Request.addElement("Header");
+        Element SourceSystem = Header.addElement("SourceSystem");
+        SourceSystem.setText(sourceSystem);
+        Element MessageID = Header.addElement("MessageID");
+        MessageID.setText(messageId);
+        Element Body = Request.addElement("Body");
+        Element CODE = Body.addElement("CODE");
+        CODE.setText("1");
+        Element MESSAGE = Body.addElement("MESSAGE");
+        MESSAGE.setText("失败");
+        Element UpdateDate=Body.addElement("UpdateDate");
+        UpdateDate.setText(replaceNullString(""));
+        //HIS 系统收费执行标志
+        Element Flag=Body.addElement("Flag");
+        Flag.setText(replaceNullString(""));
+        //ID
+        Element ID=Body.addElement("ID");
+        ID.setText(replaceNullString(String.valueOf(pzfy.getID())));
     }
 }

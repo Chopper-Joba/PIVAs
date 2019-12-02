@@ -94,7 +94,6 @@ public class PZFY {
         return DEMO;
     }
 
-
     public void setDEMO(String DEMO) {
         this.DEMO = DEMO;
     }
@@ -113,5 +112,23 @@ public class PZFY {
 
     public void setSEQID(String SEQID) {
         this.SEQID = SEQID;
+    }
+
+    @Override
+    public String toString() {
+        return "PZFY{" +
+                "ID=" + ID +
+                ", PATIENT_ID='" + PATIENT_ID + '\'' +
+                ", VISIT_ID='" + VISIT_ID + '\'' +
+                ", ORDER_ID='" + ORDER_ID + '\'' +
+                ", Department_no='" + Department_no + '\'' +
+                ", Item_no='" + Item_no + '\'' +
+                ", DevNo='" + DevNo + '\'' +
+                ", Num=" + Num +
+                ", Costs=" + Costs +
+                ", DEMO='" + DEMO + '\'' +
+                ", Createtime=" + Createtime +
+                ", SEQID='" + SEQID + '\'' +
+                '}';
     }
 }

@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class GET_JMPZ_DISPENSE_REC_COUNT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GET_JMPZ_DISPENSE_REC_COUNT.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GET_JMPZ_DISPENSE_REC_COUNT.class);
     Connection conn=null;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
@@ -52,7 +52,7 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
         Date endTime=new Timestamp(todyTwelve);
         sql.append(" and to_char(a.配药日期,'yyyy-mm-dd HH24:mm:ss')>=?");
         sql.append(" and to_char(a.配药日期,'yyyy-mm-dd HH24:mm:ss')<=?");
-        LOGGER.info(sql.toString());
+        LOG.info(sql.toString());
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -94,11 +94,11 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
                 fail();
             }
         }catch (Exception e){
-            fail();;
+            LOG.error(e.getMessage());
+            fail();
         }finally {
             DatabaseConnection.close(conn,preparedStatement,resultSet);
         }
-
         return document.asXML();
     }
     public  String replaceNullString(String str){

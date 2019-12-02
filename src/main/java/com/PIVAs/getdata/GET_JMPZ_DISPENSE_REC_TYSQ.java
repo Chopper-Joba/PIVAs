@@ -147,6 +147,9 @@ public class GET_JMPZ_DISPENSE_REC_TYSQ {
             LOG.error(e.getMessage());
             fail();
         }
+        finally {
+            DatabaseConnection.close(conn,preparedStatement,resultSet);
+        }
         return document.asXML();
     }
     public  String replaceNullString(String str){
