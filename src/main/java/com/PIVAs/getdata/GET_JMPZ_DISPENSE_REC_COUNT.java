@@ -4,6 +4,8 @@ import com.PIVAs.dbconnection.DatabaseConnection;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -14,6 +16,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class GET_JMPZ_DISPENSE_REC_COUNT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GET_JMPZ_DISPENSE_REC_COUNT.class);
     Connection conn=null;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
@@ -36,9 +39,9 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
         Element messageid=root.element("Header").element("MessageID");
         //获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        StringBuilder sql=new StringBuilder("select distinct a.NO as DISPENSING_XH, a.审核日期 as DISPENSING_DATE_TIME,a.库房ID as DISPENSARY,b.序号 as DISPENSE_AMOUNT\n" +
-                "from  药品收发记录 a,(select NO, max(序号) as 序号 from  药品收发记录 where 入出系数=-1 group by NO) b\n" +
-                "where 入出系数=-1 and a.NO=b.NO");
+        StringBuilder sql=new StringBuilder("select distinct a.NO as DISPENSING_XH, a.配药日期 as DISPENSING_DATE_TIME,a.库房ID as DISPENSARY,b.序号 as DISPENSE_AMOUNT\n" +
+                "from 药品收发记录 a,(select NO, max(序号) as 序号 from 药品收发记录 where 入出系数=-1 group by NO) b\n" +
+                "where 入出系数=-1 and a.NO=b.NO and a.序号=b.序号");
 
         long current = System.currentTimeMillis();
         long todyZero = current / (1000 * 3600 * 24) * (1000 * 3600 * 24) - TimeZone.getDefault().getRawOffset();
@@ -47,14 +50,15 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
         Date startTime=new Timestamp(todyZero-24 * 60 * 60 * 1000);
         //今晚12点
         Date endTime=new Timestamp(todyTwelve);
-        sql.append(" and to_char(a.审核日期,'yyyy-MM-dd')>=?");
-        sql.append(" and to_char(a.审核日期,'yyyy-MM-dd')<=?");
+        sql.append(" and to_char(a.配药日期,'yyyy-mm-dd HH24:mm:ss')>=?");
+        sql.append(" and to_char(a.配药日期,'yyyy-mm-dd HH24:mm:ss')<=?");
+        LOGGER.info(sql.toString());
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
             preparedStatement = conn.prepareStatement(sql.toString());
             preparedStatement.setString(1,startTime.toString());
-            preparedStatement.setString(2,startTime.toString());
+            preparedStatement.setString(2,endTime.toString());
             resultSet = preparedStatement.executeQuery();
             Element Request = document.addElement("Request");
             Element Header = Request.addElement("Header");
