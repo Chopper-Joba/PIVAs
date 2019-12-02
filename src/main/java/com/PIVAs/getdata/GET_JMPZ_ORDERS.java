@@ -79,8 +79,8 @@ public class GET_JMPZ_ORDERS {
                 "       decode(a.医嘱状态,1,1,7,2,3,4,7,5,8,6,8,7,4,9,null) as ORDER_STATUS,\n" +
                 "       decode(a.计价特性, 0, 0, 1, 3, 2, 2, null) as  BILLING_ATTR,\n" +
                 "       null as LYFS, /*后面补充*/\n" +
-                "       to_char(a.停嘱时间,'yyyy-MM-dd') as END_DATE, /*后面补充*/\n" +
-                "       to_char(a.开始执行时间,'yyyy-mm-dd') as START_DATE, /*后面补充*/\n" +
+                "       to_char(a.停嘱时间,'yyyy-MM-dd') as END_DATE, \n" +
+                "       to_char(a.开始执行时间,'yyyy-mm-dd') as START_DATE, \n" +
                 "       a.校对护士 as CHECKER,\n" +
                 "       a.校对时间 as CHECKER_DATE,\n" +
                 "       a.执行科室id as DEPT_CODE,\n" +
