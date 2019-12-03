@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -67,8 +68,7 @@ public class PUSH_JMPZ_PZFY {
             pzfy.setCosts(new BigDecimal(row.element("Costs").getText()));
             pzfy.setDEMO(ReplaceNullStringUtil.replaceNullString(row.element("DEMO").getText()));
             try {
-                LOG.error(row.element("Createtime").getText());
-                pzfy.setCreatetime(DateUtils.parseDate(row.element("Createtime").getText(),"yyy-MM-dd HH24:MM:SS"));
+                pzfy.setCreatetime(DateUtils.parseDate(row.element("Createtime").getText(),"yyyy-MM-dd HH:mm:ss"));
 
             } catch (Exception e) {
                 LOG.error(e.getMessage());
@@ -77,7 +77,7 @@ public class PUSH_JMPZ_PZFY {
             pzfy.setSEQID(ReplaceNullStringUtil.replaceNullString(row.element("SEQID").getText()));
             SEQID.setText(pzfy.getSEQID());
             try {
-                proc = conn.prepareCall("{call PUSH_JMPZ_PZFY_INS(?,?,?,?,?,?,?,?,?,?,?,?)}");
+                proc = conn.prepareCall("{call PUSH_JMPZ_PZFY_INS(?,?,?,?,?,?,?,?,?,?,to_date(?,'yyyy-MM-dd HH24:mi:ss'),?)}");
                 proc.setInt(1,pzfy.getID());
                 proc.setString(2,pzfy.getPATIENT_ID());
                 proc.setString(3,pzfy.getVISIT_ID());
@@ -87,25 +87,21 @@ public class PUSH_JMPZ_PZFY {
                 proc.setString(7,pzfy.getDevNo());
                 proc.setInt(8,pzfy.getNum());
                 proc.setBigDecimal(9,pzfy.getCosts());
-                proc.setString(10,pzfy.getDEMO());
-                proc.setString(11,pzfy.getCreatetime().toString());
-                proc.setString(12,pzfy.getSEQID());
-                Boolean successINS =proc.execute();
-                if (successINS){
-                    //HIS收费时间
-                    Element ROWS=Body.addElement("ROWS");
-                    Element UpdateDate=ROWS.addElement("UpdateDate");
-                    UpdateDate.setText(new Date().toString());
-                    //HIS 系统收费执行标志
-                    Element Flag=ROWS.addElement("Flag");
-                    Flag.setText(ReplaceNullStringUtil.replaceNullString("0"));
-                    //ID
-                    Element ID=ROWS.addElement("ID");
-                    ID.setText(ReplaceNullStringUtil.replaceNullString(String.valueOf(pzfy.getID())));
-                }else {
-                    LOG.error("存储过程:PUSH_JMPZ_PZFY_INS 数据存储失败");
-                    fail();
-                }
+                proc.setString(10, pzfy.getDEMO());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                proc.setString(11, sdf.format(pzfy.getCreatetime()));
+                proc.setString(12, pzfy.getSEQID());
+                proc.execute();
+                //HIS收费时间
+                Element ROWS = Body.addElement("ROWS");
+                Element UpdateDate = ROWS.addElement("UpdateDate");
+                UpdateDate.setText(sdf.format(new Date()));
+                //HIS 系统收费执行标志
+                Element Flag = ROWS.addElement("Flag");
+                Flag.setText(ReplaceNullStringUtil.replaceNullString("0"));
+                //ID
+                Element ID = ROWS.addElement("ID");
+                ID.setText(ReplaceNullStringUtil.replaceNullString(String.valueOf(pzfy.getID())));
             }catch (Exception e){
                 LOG.error(e.getMessage());
                 fail();
@@ -129,12 +125,13 @@ public class PUSH_JMPZ_PZFY {
         Element MESSAGE = Body.addElement("MESSAGE");
         MESSAGE.setText("失败");
         Element UpdateDate=Body.addElement("UpdateDate");
-        UpdateDate.setText(new Date().toString());
+        UpdateDate.setText("");
         //HIS 系统收费执行标志
         Element Flag=Body.addElement("Flag");
         Flag.setText(ReplaceNullStringUtil.replaceNullString("1"));
         //ID
         Element ID=Body.addElement("ID");
-        ID.setText(ReplaceNullStringUtil.replaceNullString(String.valueOf(pzfy.getID())));
+//        ID.setText(ReplaceNullStringUtil.replaceNullString(String.valueOf(pzfy.getID())));
+        ID.setText("");
     }
 }
