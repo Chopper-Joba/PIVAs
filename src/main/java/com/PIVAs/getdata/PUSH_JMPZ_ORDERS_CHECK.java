@@ -3,7 +3,6 @@ package com.PIVAs.getdata;
 import com.PIVAs.dao.ORDERS_CHECK;
 import com.PIVAs.dbconnection.DatabaseConnection;
 import com.PIVAs.util.ReplaceNullStringUtil;
-import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -56,17 +55,21 @@ public class PUSH_JMPZ_ORDERS_CHECK {
         Element MESSAGE = Body.addElement("MESSAGE");
         MESSAGE.setText("成功");
         Element SEQID = Body.addElement("SEQID");
-        SEQID.setText(ReplaceNullStringUtil.replaceNullString(ordersCheck.getSEQID()));
-        List<Element> elebody=root.elements("Body");
+        SEQID.setText(ReplaceNullStringUtil.replaceNullString(root.element("Body").element("rows").element("row").element("SEQID").getText()));
+        List<Element> elebody=root.element("Body").element("rows").elements("row");
         for (Element elebodys:elebody )
         {
             ordersCheck.setPATIENT_ID(ReplaceNullStringUtil.replaceNullString(elebodys.element("PATIENT_ID").getText()));
+            System.out.println(elebodys.element("PATIENT_ID").getText());
             ordersCheck.setVISIT_ID(ReplaceNullStringUtil.replaceNullString(elebodys.element("VISIT_ID").getText()));
+            System.out.println(elebodys.element("VISIT_ID").getText());
             ordersCheck.setORDER_ID(ReplaceNullStringUtil.replaceNullString(elebodys.element("ORDER_ID").getText()));
             ordersCheck.setSHBZ(ReplaceNullStringUtil.replaceNullString(elebodys.element("SHBZ").getText()));
             ordersCheck.setSHENGFANGZT(ReplaceNullStringUtil.replaceNullString(elebodys.element("SHENGFANGZT").getText()));
             ordersCheck.setSEQID(ReplaceNullStringUtil.replaceNullString(elebodys.element("SEQID").getText()));
+
             try {
+                LOG.error(ordersCheck.toString());
                 proc = conn.prepareCall("{call PUSH_JMPZ_ORDERS_CHECK_INS(?,?,?,?,?,?)}");
                 proc.setString(1, ordersCheck.getPATIENT_ID());
                 proc.setString(2, ordersCheck.getVISIT_ID());

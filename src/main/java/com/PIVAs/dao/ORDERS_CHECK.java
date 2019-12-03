@@ -55,4 +55,16 @@ public class ORDERS_CHECK {
     public void setSEQID(String SEQID) {
         this.SEQID = SEQID;
     }
+
+    @Override
+    public String toString() {
+        return "ORDERS_CHECK{" +
+                "PATIENT_ID='" + PATIENT_ID + '\'' +
+                ", VISIT_ID='" + VISIT_ID + '\'' +
+                ", ORDER_ID='" + ORDER_ID + '\'' +
+                ", SHBZ='" + SHBZ + '\'' +
+                ", SHENGFANGZT='" + SHENGFANGZT + '\'' +
+                ", SEQID='" + SEQID + '\'' +
+                '}';
+    }
 }
