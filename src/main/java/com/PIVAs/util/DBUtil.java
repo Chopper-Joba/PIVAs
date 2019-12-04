@@ -59,6 +59,15 @@ public class DBUtil {
             e.printStackTrace();
         }
     }
+    public static void close(CallableStatement cbs){
+        if (cbs!=null){
+            try {
+                cbs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     public static void close(Connection conn,PreparedStatement preparedStatement,ResultSet resultSet){
         close(conn);
         close(preparedStatement);
