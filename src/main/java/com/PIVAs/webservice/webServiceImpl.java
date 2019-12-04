@@ -1,6 +1,6 @@
 package com.PIVAs.webservice;
 
-import com.PIVAs.getdata.*;
+import com.PIVAs.services.*;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
