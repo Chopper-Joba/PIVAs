@@ -8,23 +8,21 @@ import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Properties;
-@Service
 public class GET_JMPZ_HIS_USER {
-    private String JMPZ_ID;
+
     private final Logger LOG = LoggerFactory.getLogger(GET_JMPZ_HIS_USER.class);
     Connection conn=null;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
     private  String  seqId,sourceSystem,messageId;
-
+    private String JMPZ_ID;
     public GET_JMPZ_HIS_USER(){
         Properties properties = null;
         try {

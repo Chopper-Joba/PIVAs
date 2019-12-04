@@ -6,6 +6,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -13,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Properties;
 import java.util.TimeZone;
 
 public class GET_JMPZ_DISPENSE_REC_COUNT {
@@ -22,6 +24,16 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
     ResultSet resultSet;
     Document document=null;
     private  String  seqId,sourceSystem,messageId;
+    private String JMPZ_ID;
+    public GET_JMPZ_DISPENSE_REC_COUNT(){
+        Properties properties = null;
+        try {
+            properties = PropertiesLoaderUtils.loadAllProperties("application.properties");
+        } catch (IOException e) {
+            LOG.error("读取静配中心部门id失败");
+        }
+        JMPZ_ID=properties.getProperty("JMPZ_DeptId");
+    }
     public String GET_JMPZ_DISPENSE_REC_COUNT(Document requestxml){
         try {
             conn = DBUtil.getConnection();
@@ -39,9 +51,10 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
         Element messageid=root.element("Header").element("MessageID");
         //获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        StringBuilder sql=new StringBuilder("select distinct a.NO as DISPENSING_XH, a.配药日期 as DISPENSING_DATE_TIME,a.库房ID as DISPENSARY,b.序号 as DISPENSE_AMOUNT\n" +
-                "from 药品收发记录 a,(select NO, max(序号) as 序号 from 药品收发记录 where 入出系数=-1 group by NO) b\n" +
-                "where 入出系数=-1 and a.NO=b.NO and a.序号=b.序号");
+        StringBuilder sql=new StringBuilder("select");
+        sql.append(" distinct a.NO as DISPENSING_XH, a.配药日期 as DISPENSING_DATE_TIME,a.库房ID as DISPENSARY,b.序号 as DISPENSE_AMOUNT");
+        sql.append(" from 药品收发记录 a,(select NO, max(序号) as 序号 from 药品收发记录 where 入出系数=-1 group by NO) b");
+        sql.append(" where 入出系数=-1 and a.NO=b.NO and a.序号=b.序号");
 
         long current = System.currentTimeMillis();
         long todyZero = current / (1000 * 3600 * 24) * (1000 * 3600 * 24) - TimeZone.getDefault().getRawOffset();
@@ -52,6 +65,7 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
         Date endTime=new Timestamp(todyTwelve);
         sql.append(" and to_char(a.配药日期,'yyyy-mm-dd HH24:mm:ss')>=?");
         sql.append(" and to_char(a.配药日期,'yyyy-mm-dd HH24:mm:ss')<=?");
+        sql.append(" and a.库房ID=?");
         LOG.info(sql.toString());
         try {
             document = DocumentHelper.createDocument();
@@ -59,6 +73,7 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
             preparedStatement = conn.prepareStatement(sql.toString());
             preparedStatement.setString(1,startTime.toString());
             preparedStatement.setString(2,endTime.toString());
+            preparedStatement.setInt(3,Integer.valueOf(JMPZ_ID));
             resultSet = preparedStatement.executeQuery();
             Element Request = document.addElement("Request");
             Element Header = Request.addElement("Header");
