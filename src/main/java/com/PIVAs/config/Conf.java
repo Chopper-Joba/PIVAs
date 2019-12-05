@@ -19,7 +19,7 @@ public class Conf {
     webService ws;
     @Bean
     public ServletRegistrationBean servletRegistrationBean(){
-        return new ServletRegistrationBean(new CXFServlet(),"/webservice/*");
+        return new ServletRegistrationBean(new CXFServlet(),"/jmpz/*");
     }
     @Bean
     public Endpoint endpoint(){

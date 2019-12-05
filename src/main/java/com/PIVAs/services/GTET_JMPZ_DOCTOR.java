@@ -75,7 +75,7 @@ public class GTET_JMPZ_DOCTOR {
                     DEPARTMENTNAME.setText(replaceNullString(resultSet.getString("DEPARTMENTNAME")));
                     //备注
                     Element BEIZHU=Rows.addElement("BEIZHU");
-                    BEIZHU.setText(replaceNullString(resultSet.getString("DEPARTMENTNAME")));
+                    BEIZHU.setText(replaceNullString(resultSet.getString("BEIZHU")));
                 }
                 if (rows==0){
                     errMessage+="没有查询到数据！";

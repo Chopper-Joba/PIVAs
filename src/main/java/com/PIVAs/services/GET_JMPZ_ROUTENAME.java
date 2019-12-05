@@ -34,8 +34,10 @@ public class GET_JMPZ_ROUTENAME {
         Element messageid=root.element("Header").element("MessageID");
         //获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
+//        String sql="select id as ROUTENAMEID,编码 as ROUTENAMEBH,名称 as ROUTENAME,null as ROUTENAME_PASS " +
+//                   "from 诊疗项目目录 where 名称 in('静脉注射','静脉输液'）";
         String sql="select id as ROUTENAMEID,编码 as ROUTENAMEBH,名称 as ROUTENAME,null as ROUTENAME_PASS " +
-                   "from 诊疗项目目录 where 名称 in('静脉注射','静脉输液'）";
+                  "from 诊疗项目目录 where  名称 like '%静脉输液%'";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -111,7 +113,7 @@ public class GET_JMPZ_ROUTENAME {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败!"+errMessage);
+        MESSAGE.setText("失败");
         Element Rows=Body.addElement("Rows");
         //给药方式id
         Element ROUTENAMEID=Rows.addElement("ROUTENAMEID");

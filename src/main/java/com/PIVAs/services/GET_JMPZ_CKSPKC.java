@@ -4,11 +4,13 @@ import com.PIVAs.util.DBUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Properties;
 
 public class GET_JMPZ_CKSPKC {
     Connection conn=null;
@@ -16,6 +18,7 @@ public class GET_JMPZ_CKSPKC {
     ResultSet resultSet;
     Document document=null;
     String errMessage="";
+    String JMPZ_ID="";
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_CKSPKC(Document requestxml){
         try {
@@ -24,6 +27,13 @@ public class GET_JMPZ_CKSPKC {
             // TODO Auto-generated catch block
             errMessage+= "数据库连接失败！";
         }
+        Properties properties=null;
+        try {
+            properties = PropertiesLoaderUtils.loadAllProperties("application.properties");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        JMPZ_ID=properties.getProperty("JMPZ_DeptId");
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
 //           获取入参的SEQID节点的值

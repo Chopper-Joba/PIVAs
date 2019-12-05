@@ -4,19 +4,34 @@ import com.PIVAs.util.DBUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Properties;
 
-public class GET_JMPZ_ORDERS {
+public class  GET_JMPZ_ORDERS{
     Connection conn=null;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
     private  String  seqId,sourceSystem,messageId;
+    String deptId;
     StringBuilder errMessage=new StringBuilder("");
+    public GET_JMPZ_ORDERS()
+    {
+        Properties properties = null;
+        try {
+            properties = PropertiesLoaderUtils.loadAllProperties("application.properties");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        deptId = properties.getProperty("JMPZ_DeptId");
+    }
+
     public String GET_JMPZ_ORDERS(Document requestxml){
         try {
             conn = DBUtil.getConnection();
@@ -40,6 +55,10 @@ public class GET_JMPZ_ORDERS {
         //获取入参VISIT_ID的值
         Element visitid=root.element("Body").element("VISIT_ID");
         String visitId=replaceNullString(visitid.getText());
+        if("".equals(visitId))
+        {
+            visitId="1";
+        }
         //获取入参DEPT_CODE的值
         Element deptcode=root.element("Body").element("DEPT_CODE");
         String deptCode=replaceNullString(deptcode.getText());
@@ -47,7 +66,7 @@ public class GET_JMPZ_ORDERS {
         Element starttime=root.element("Body").element("START_QUERY_TIME");
         String startTime=replaceNullString(starttime.getText());
         //获取入参END_QUERY_TIME
-        Element endtime=root.element("Body").element("START_QUERY_TIME");
+        Element endtime=root.element("Body").element("END_QUERY_TIME");
         String endTime=replaceNullString(endtime.getText());
         String sql= "select a.收费细目id as ITEM_CODE,\n" +
                 "       a.单次用量 as AMOUNT,\n" +
@@ -76,7 +95,7 @@ public class GET_JMPZ_ORDERS {
                 "       d.名称 as ORDERING_DEPT,\n" +
                 "       a.开嘱医生 as DOCTOR,\n" +
                 "       a.停嘱医生 as STOP_DOCTOR,\n" +
-                "       decode(a.医嘱状态,1,1,7,2,3,4,7,5,8,6,8,7,4,9,null) as ORDER_STATUS,\n" +
+                "       decode(a.医嘱状态,3,4,4,9,5,4,6,7,7,5,8,7,9,7,null) as ORDER_STATUS,\n" +
                 "       decode(a.计价特性, 0, 0, 1, 3, 2, 2, null) as  BILLING_ATTR,\n" +
                 "       null as LYFS, /*后面补充*/\n" +
                 "       to_char(a.停嘱时间,'yyyy-MM-dd') as END_DATE, \n" +
@@ -92,22 +111,25 @@ public class GET_JMPZ_ORDERS {
                 "  where a.诊疗类别=b.编码\n" +
                 "   and a.收费细目id = c.药品id\n" +
                 "   and a.执行科室id = d.id" +
-                "   and a.执行科室id=380";
-        if ("".equals(patientId) && "".equals(visitId) && deptCode!="" )
-        {
+                "   and a.执行科室id=?"+
+                " and  a.医嘱状态 not in (-1,1,2)";
+        if ("".equals(patientId) && deptCode!="" )
+            {
             sql+=" and a.开嘱科室id="+deptCode;
         }
-        if ("".equals(deptCode)&& patientId!="" && visitId!=""){
+        if (patientId!="" ){
             sql+=" and a.病人id=" + patientId + " and a.主页id=" +visitId;
         }
-        sql+=" and a.开嘱时间> to_date( ?,'yyyy-mm-dd hh24:mi:ss')";
-        sql+= " and  a.停嘱时间< to_date(?,'yyyy-mm-dd hh24:mi:ss')";
+
+        sql+=" and a.开嘱时间> to_date( ?,'yyyy-mm-dd HH24:mi:ss')";
+        sql+= " and  a.停嘱时间< to_date(?,'yyyy-mm-dd HH24:mi:ss')";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
             preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setString(1,startTime);
-            preparedStatement.setString(2,endTime);
+            preparedStatement.setInt(1,Integer.valueOf(deptId));
+            preparedStatement.setString(2,startTime);
+            preparedStatement.setString(3,endTime);
             resultSet = preparedStatement.executeQuery();
             Element Request = document.addElement("Request");
             Element Header = Request.addElement("Header");
@@ -276,7 +298,7 @@ public class GET_JMPZ_ORDERS {
         Element CODE = Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE = Body.addElement("MESSAGE");
-        MESSAGE.setText("失败:"+errMessage);
+        MESSAGE.setText("失败");
         Element Rows = Body.addElement("Rows");
         Element ITEM_CODE=Rows.addElement("ITEM_CODE");
         ITEM_CODE.addText(replaceNullString(""));

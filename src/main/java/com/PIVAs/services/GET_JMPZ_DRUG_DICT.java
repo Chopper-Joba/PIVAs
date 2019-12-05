@@ -112,7 +112,7 @@ public class GET_JMPZ_DRUG_DICT {
                 JIXING.addText(replaceNullString(resultSet.getString("JIXING")));
                 //拼音码
                 Element PYM=Rows.addElement("PYM");
-                PYM.addText(replaceNullString("PYM"));
+                PYM.addText(replaceNullString(resultSet.getString("PYM")));
                 //批准文号
                 Element PIZHWH=Rows.addElement("PIZHWH");
                 PIZHWH.addText(replaceNullString(resultSet.getString("PIZHWH")));
@@ -136,11 +136,12 @@ public class GET_JMPZ_DRUG_DICT {
         }catch (Exception e){
             errMessage+=e.getMessage();
             fail();
+        }finally {
+            DBUtil.close(conn,preparedStatement,resultSet);
         }
         return document.asXML();
     }
     public  String replaceNullString(String str){
-//        if (str==null){
         if ("".equals(str)||str==null){
             return "";
         }
@@ -160,7 +161,7 @@ public class GET_JMPZ_DRUG_DICT {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败!"+errMessage);
+        MESSAGE.setText("失败");
         Element Rows=Body.addElement("Rows");
         //商品 ID
         Element SPID=Rows.addElement("SPID");
