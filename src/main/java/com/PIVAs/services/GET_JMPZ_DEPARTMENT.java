@@ -102,7 +102,7 @@ public class GET_JMPZ_DEPARTMENT {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败!"+errMessage);
+        MESSAGE.setText("失败");
         Element Rows=Body.addElement("Rows");
         Element DEPARTMENT_NO=Rows.addElement("DEPARTMENT_NO");
         DEPARTMENT_NO.setText(replaceNullString(""));

@@ -52,9 +52,9 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
         //获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
         StringBuilder sql=new StringBuilder("select");
-        sql.append(" distinct a.NO as DISPENSING_XH, a.配药日期 as DISPENSING_DATE_TIME,a.库房ID as DISPENSARY,b.序号 as DISPENSE_AMOUNT");
+        sql.append(" distinct a.NO as DISPENSING_XH, a.审核日期 as DISPENSING_DATE_TIME,a.库房ID as DISPENSARY,b.序号 as DISPENSE_AMOUNT");
         sql.append(" from 药品收发记录 a,(select NO, max(序号) as 序号 from 药品收发记录 where 入出系数=-1 group by NO) b");
-        sql.append(" where 入出系数=-1 and a.NO=b.NO and a.序号=b.序号");
+        sql.append(" where 入出系数=-1 and a.NO=b.NO and a.序号=b.序号 and a.记录状态 in(1,3)");
 
         long current = System.currentTimeMillis();
         long todyZero = current / (1000 * 3600 * 24) * (1000 * 3600 * 24) - TimeZone.getDefault().getRawOffset();
@@ -63,8 +63,8 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
         Date startTime=new Timestamp(todyZero-24 * 60 * 60 * 1000);
         //今晚12点
         Date endTime=new Timestamp(todyTwelve);
-        sql.append(" and to_char(a.配药日期,'yyyy-mm-dd HH24:mm:ss')>=?");
-        sql.append(" and to_char(a.配药日期,'yyyy-mm-dd HH24:mm:ss')<=?");
+        sql.append(" and to_char(a.审核日期,'yyyy-mm-dd HH24:mm:ss')>=?");
+        sql.append(" and to_char(a.审核日期,'yyyy-mm-dd HH24:mm:ss')<=?");
         sql.append(" and a.库房ID=?");
         LOG.info(sql.toString());
         try {

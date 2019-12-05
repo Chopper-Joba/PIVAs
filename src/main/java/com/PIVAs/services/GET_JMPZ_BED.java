@@ -4,6 +4,9 @@ import com.PIVAs.util.DBUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.hibernate.validator.internal.util.logging.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -16,6 +19,7 @@ public class GET_JMPZ_BED {
     ResultSet resultSet;
     Document document=null;
     String errMessage="";
+    Logger log= LoggerFactory.getLogger(GET_JMPZ_BED.class);
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_BED(Document requestxml){
         try {
@@ -102,6 +106,7 @@ public class GET_JMPZ_BED {
                 fail();
             }
         }
+        log.error(errMessage);
         return document.asXML();
     }
     public  String replaceNullString(String str){
@@ -124,7 +129,7 @@ public class GET_JMPZ_BED {
         Element CODE=Body.addElement("CODE");
         CODE.setText("1");
         Element MESSAGE=Body.addElement("MESSAGE");
-        MESSAGE.setText("失败!"+errMessage);
+        MESSAGE.setText("失败");
         Element Rows=Body.addElement("Rows");
         //病人id
         Element PATIENT_ID=Rows.addElement("PATIENT_ID");

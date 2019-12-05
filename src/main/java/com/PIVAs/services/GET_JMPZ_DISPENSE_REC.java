@@ -17,7 +17,7 @@ public class GET_JMPZ_DISPENSE_REC {
     ResultSet resultSet;
     Document document=null;
     String  errMessage="";
-    private  String  seqId,sourceSystem,messageId;
+    private  String  seqId,sourceSystem,messageId,despensingXH,dispensingDateTime;
     public String GET_JMPZ_DISPENSE_REC(Document requestxml){
         try {
             conn = DBUtil.getConnection();
@@ -26,15 +26,21 @@ public class GET_JMPZ_DISPENSE_REC {
             errMessage+= "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
-        Element seqid=root.element("Body").element("SEQID");
         //获取入参的SEQID节点的值
+        Element seqid=root.element("Body").element("SEQID");
         seqId=ReplaceNullStringUtil.replaceNullString(seqid.getText());
-        Element sourcesystem=root.element("Header").element("SourceSystem");
         //获取入参SourceSystem的节点的值
+        Element sourcesystem=root.element("Header").element("SourceSystem");
         sourceSystem=ReplaceNullStringUtil.replaceNullString(sourcesystem.getText());
-        Element messageid=root.element("Header").element("MessageID");
         //获取入参MessageID的值
+        Element messageid=root.element("Header").element("MessageID");
         messageId=ReplaceNullStringUtil.replaceNullString(messageid.getText());
+        //DISPENSING_XH
+        Element DISPENSING_xh=root.element("Body").element("DISPENSING_XH");
+        despensingXH=ReplaceNullStringUtil.replaceNullString(DISPENSING_xh.getText());
+        //DISPENSING_DATE_TIME
+        Element dispensing_date_time=root.element("Body").element("DISPENSING_DATE_TIME");
+        dispensingDateTime=ReplaceNullStringUtil.replaceNullString(dispensing_date_time.getText());
         String sql="select\n" +
                 "a.no as DISPENSING_XH,\n" +
                 "a.库房id as DISPENSARY,\n" +
@@ -73,49 +79,15 @@ public class GET_JMPZ_DISPENSE_REC {
                 "and b.主页id=d.主页id\n" +
                 "and a.药品id = d.收费细目id\n" +
                 "and d.相关id= e.id\n" +
-                "and 入出系数=-1select\n" +
-                "a.no as DISPENSING_XH,\n" +
-                "a.库房id as DISPENSARY,\n" +
-                "a.库房id as CKID,\n" +
-                "to_char(a.审核日期,'yyyy-mm-dd') as RQ,\n" +
-                "a.审核日期 as DISPENSING_DATE_TIME,\n" +
-                "a.对方部门id as ORDERED_BY,\n" +
-                "b.病人id as PATIENT_ID,\n" +
-                "b.主页id as VISIT_ID,\n" +
-                "a.序号 as XH,\n" +
-                "null as ORDER_NO,\n" +
-                "a.序号 as ORDER_SUB_NO,\n" +
-                "a.药品id as DRUG_CODE,\n" +
-                "c.规格 as DRUG_SPEC,\n" +
-                "c.住院单位 as DRUG_UNITS,\n" +
-                "a.产地 as FIRM_ID,\n" +
-                "a.实际数量 as DISPENSE_AMOUNT,\n" +
-                "a.零售金额 as COSTS,\n" +
-                "decode(d.医嘱期效,0,1,1,0,null)as REPEAT_INDICATOR,\n" +
-                "1 as FYLX,\n" +
-                "e.医嘱内容 as ROUTENAME,\n" +
-                "a.配药人 as DISPENSING_PROVIDER,\n" +
-                "null as SRRY,\n" +
-                "null as YEBZ,\n" +
-                "null as YPGLBZ,\n" +
-                "d.开始执行时间 as USEDATE,\n" +
-                "null as USE_TIME,\n" +
-                "a.填制日期 as SHENQ_DATE_TIME,\n" +
-                "d.执行频次 as FREQUENCY,\n" +
-                "d.医嘱内容 as ORDER_NAME,\n" +
-                " null as TWO_CODE\n" +
-                "from 药品收发记录 a, 住院费用记录 b, 药品目录 c, 病人医嘱记录 d, 病人医嘱记录 e\n" +
-                "where a.费用id=b.id\n" +
-                "and a.药品id=c.药品id\n" +
-                "and b.病人id=d.病人id\n" +
-                "and b.主页id=d.主页id\n" +
-                "and a.药品id = d.收费细目id\n" +
-                "and d.相关id= e.id\n" +
-                "and 入出系数=-1";
+                "and a.入出系数=-1"+
+                "and a.no=?"+
+                "and  a.审核日期=to_date(?,'yyyy-mm-dd hh24:mi:ss')";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
             preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1,despensingXH);
+            preparedStatement.setString(2,dispensingDateTime);
             resultSet = preparedStatement.executeQuery();
             Element Request = document.addElement("Request");
             Element Header = Request.addElement("Header");
@@ -233,7 +205,7 @@ public class GET_JMPZ_DISPENSE_REC {
             }
         }
 
-        return null;
+        return document.asXML();
     }
     public void fail(){
         document= DocumentHelper.createDocument();
