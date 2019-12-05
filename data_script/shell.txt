@@ -1,0 +1,4 @@
+启动 sh PIVAs.sh start
+停止 sh PIVAs.sh stop
+重启 sh PIVAs.sh restart
+查看状态 sh PIVAs.sh status
