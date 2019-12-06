@@ -25,6 +25,7 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
     Document document=null;
     private  String  seqId,sourceSystem,messageId;
     private String JMPZ_ID;
+    StringBuilder errMessage=new StringBuilder("");
     public GET_JMPZ_DISPENSE_REC_COUNT(){
         Properties properties = null;
         try {
@@ -38,7 +39,6 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
         try {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
-            // TODO Auto-generated catch block
             return "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
@@ -105,14 +105,16 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
                 DISPENSE_AMOUNT.addText(replaceNullString(resultSet.getString("DISPENSE_AMOUNT")));
             }
             if (rows==0){
+                errMessage.append("查询不到数据!");
                 fail();
             }
         }catch (Exception e){
-            LOG.error(e.getMessage());
+            errMessage.append(e.getMessage());
             fail();
         }finally {
             DBUtil.close(conn,preparedStatement,resultSet);
         }
+        LOG.error(errMessage.toString());
         return document.asXML();
     }
     public  String replaceNullString(String str){

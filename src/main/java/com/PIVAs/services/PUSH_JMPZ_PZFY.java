@@ -24,6 +24,7 @@ public class PUSH_JMPZ_PZFY {
     PZFY pzfy=new PZFY();
     private  String  sourceSystem,messageId;
     CallableStatement proc=null;
+    StringBuilder errMessage=new StringBuilder("");
     public String PUSH_JMPZ_PZFY(Document requestxml){
         try {
             conn = DBUtil.getConnection();
@@ -66,7 +67,7 @@ public class PUSH_JMPZ_PZFY {
                 try {
                     pzfy.setCreatetime(DateUtils.parseDate(row.element("Createtime").getText(),"yyyy-MM-dd HH:mm:ss"));
                 } catch (Exception e) {
-                    LOG.error(e.getMessage());
+                    errMessage.append(e.getMessage());
                 }
                 pzfy.setSEQID(ReplaceNullStringUtil.replaceNullString(row.element("SEQID").getText()));
                 SEQID.setText(pzfy.getSEQID());
@@ -97,18 +98,18 @@ public class PUSH_JMPZ_PZFY {
                     Element ID = ROWS.addElement("ID");
                     ID.setText(ReplaceNullStringUtil.replaceNullString(String.valueOf(pzfy.getID())));
                 }catch (Exception e){
-                    LOG.error(e.getMessage());
+                    errMessage.append(e.getMessage());
                     fail();
                     return e.getMessage();
                 }
             }
         } catch (IOException e1) {
-            // TODO Auto-generated catch block
             return "数据库连接失败！";
         }finally {
             DBUtil.close(conn);
             DBUtil.close(proc);
         }
+        LOG.error(errMessage.toString());
         return document.asXML();
     }
     public void fail(){

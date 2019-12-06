@@ -58,6 +58,7 @@ public class GET_JMPZ_ROUTENAME {
             MESSAGE.setText("成功");
             Element SEQID = Body.addElement("SEQID");
             SEQID.setText(seqId);
+            LOG.info(sql);
             int rows = 0;
             while (resultSet.next()){
                 rows++;

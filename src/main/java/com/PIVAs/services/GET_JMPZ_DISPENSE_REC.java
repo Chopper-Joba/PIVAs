@@ -25,7 +25,6 @@ public class GET_JMPZ_DISPENSE_REC {
         try {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
-            // TODO Auto-generated catch block
             return "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
@@ -200,9 +199,10 @@ public class GET_JMPZ_DISPENSE_REC {
                 fail();
             }
         }catch (Exception e){
+            errMessage.append(e.getMessage());
             fail();
         }finally {
-         DBUtil.close(conn,preparedStatement,resultSet);
+            DBUtil.close(conn,preparedStatement,resultSet);
         }
         LOG.error(errMessage.toString());
         return document.asXML();

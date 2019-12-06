@@ -4,6 +4,8 @@ import com.PIVAs.util.DBUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 
@@ -14,6 +16,7 @@ import java.sql.ResultSet;
 import java.util.Properties;
 
 public class  GET_JMPZ_ORDERS{
+    private Logger logger=LoggerFactory.getLogger(GET_JMPZ_ORDERS.class);
     Connection conn=null;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
@@ -28,6 +31,7 @@ public class  GET_JMPZ_ORDERS{
             properties = PropertiesLoaderUtils.loadAllProperties("application.properties");
         } catch (IOException e) {
             e.printStackTrace();
+            errMessage.append("读取静配中心部门id失败");
         }
         deptId = properties.getProperty("JMPZ_DeptId");
     }
@@ -36,8 +40,7 @@ public class  GET_JMPZ_ORDERS{
         try {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            errMessage.append( "数据库连接失败！");
+            return "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -144,9 +147,9 @@ public class  GET_JMPZ_ORDERS{
             MESSAGE.setText("成功");
             Element SEQID = Body.addElement("SEQID");
             SEQID.setText(seqId);
-            int rows = 0;
+
             while (resultSet.next()) {
-                rows++;
+
                 Element Rows = Body.addElement("Rows");
                 //项目代码
                 Element ITEM_CODE=Rows.addElement("ITEM_CODE");
@@ -276,6 +279,7 @@ public class  GET_JMPZ_ORDERS{
         }finally {
             DBUtil.close(conn,preparedStatement,resultSet);
         }
+        logger.error(errMessage.toString());
         return document.asXML();
     }
     public  String replaceNullString(String str){

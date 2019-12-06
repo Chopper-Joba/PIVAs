@@ -22,6 +22,7 @@ public class PUSH_JMPZ_PEIZHI {
     CallableStatement proc=null;
     private  String  seqId,sourceSystem,messageId;
     PEIZHI peizhi=new PEIZHI();
+    StringBuilder errMessage=new StringBuilder("");
     public String PUSH_JMPZ_PEIZHI(Document requestxml){
         try {
             conn = DBUtil.getConnection();
@@ -85,17 +86,17 @@ public class PUSH_JMPZ_PEIZHI {
                         SEQID.setText(seqId);
                     }
                 }catch (Exception e){
-                    LOG.error(e.getMessage());
+                    errMessage.append(e.getMessage());
                     fail();
                 }
             }
         } catch (IOException e1) {
-            // TODO Auto-generated catch block
             return "数据库连接失败！";
         }finally {
             DBUtil.close(conn);
             DBUtil.close(proc);
         }
+        LOG.error(errMessage.toString());
         return document.asXML();
     }
     public  String replaceNullString(String str){

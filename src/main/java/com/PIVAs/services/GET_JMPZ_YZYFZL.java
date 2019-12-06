@@ -5,6 +5,8 @@ import com.PIVAs.util.ReplaceNullStringUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -12,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class GET_JMPZ_YZYFZL {
+    private Logger logger= LoggerFactory.getLogger(GET_JMPZ_YZYFZL.class);
     Connection conn = null;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
@@ -53,6 +56,7 @@ public class GET_JMPZ_YZYFZL {
                 MESSAGE.setText("成功");
                 Element SEQID = Body.addElement("SEQID");
                 SEQID.setText(seqId);
+                logger.info(sql);
                 while (resultSet.next()) {
                     Element Rows = Body.addElement("Rows");
                     //医嘱用法编号
@@ -83,11 +87,11 @@ public class GET_JMPZ_YZYFZL {
                 fail();
             }
         } catch (IOException e1) {
-            // TODO Auto-generated catch block
             return "数据库连接失败！";
         }finally {
             DBUtil.close(conn, preparedStatement, resultSet);
         }
+        logger.error(errMessage.toString());
         return document.asXML();
     }
 

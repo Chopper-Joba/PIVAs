@@ -27,8 +27,6 @@ public class GET_JMPZ_DISPENSE_REC_TYSQ {
         try {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
-            // TODO Auto-generated catch block
-           // errMessage.append( "数据库连接失败！");
             return  "数据库连接失败";
         }
         Element root=requestxml.getRootElement();
@@ -147,7 +145,7 @@ public class GET_JMPZ_DISPENSE_REC_TYSQ {
                 fail();
             }
         }catch (Exception e){
-            //LOG.error(e.getMessage());
+            errMessage.append(e.getMessage());
             fail();
         }
         finally {
