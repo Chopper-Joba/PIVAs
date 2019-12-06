@@ -4,6 +4,8 @@ import com.PIVAs.util.DBUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -11,18 +13,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class GET_JMPZ_ROUTENAME {
+    private static final Logger LOG= LoggerFactory.getLogger(GET_JMPZ_ROUTENAME.class);
     Connection conn=null;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
-    String errMessage="";
+    StringBuilder errMessage=new StringBuilder("");
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_ROUTENAME(Document requestxml){
         try {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            errMessage+= "数据库连接失败！";
+           // errMessage.append( "数据库连接失败！");
+            return "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -34,8 +38,6 @@ public class GET_JMPZ_ROUTENAME {
         Element messageid=root.element("Header").element("MessageID");
         //获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-//        String sql="select id as ROUTENAMEID,编码 as ROUTENAMEBH,名称 as ROUTENAME,null as ROUTENAME_PASS " +
-//                   "from 诊疗项目目录 where 名称 in('静脉注射','静脉输液'）";
         String sql="select id as ROUTENAMEID,编码 as ROUTENAMEBH,名称 as ROUTENAME,null as ROUTENAME_PASS " +
                   "from 诊疗项目目录 where  名称 like '%静脉输液%'";
         try {
@@ -74,22 +76,16 @@ public class GET_JMPZ_ROUTENAME {
                 ROUTENAME_PASS.addText(replaceNullString(""));
             }
             if (rows==0){
-                errMessage+="没有查询到数据！";
+                errMessage.append("没有查询到数据！");
                 fail();
             }
         }catch (Exception e){
-            errMessage+=e.getMessage();
+            errMessage.append(e.getMessage());
             fail();
         }finally {
-            try {
-                conn.close();
-                resultSet.close();
-                preparedStatement.close();
-            }catch (Exception e){
-                errMessage+=e.getMessage();
-                fail();
-            }
+            DBUtil.close(conn,preparedStatement,resultSet);
         }
+        LOG.error(errMessage.toString());
         return document.asXML();
     }
     public  String replaceNullString(String str)

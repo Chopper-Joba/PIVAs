@@ -5,6 +5,8 @@ import com.PIVAs.util.ReplaceNullStringUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -16,14 +18,15 @@ public class GET_JMPZ_DISPENSE_REC {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
-    String  errMessage="";
+   StringBuilder errMessage=new StringBuilder("");
+    private static final Logger LOG = LoggerFactory.getLogger(GET_JMPZ_DISPENSE_REC.class);
     private  String  seqId,sourceSystem,messageId,despensingXH,dispensingDateTime;
     public String GET_JMPZ_DISPENSE_REC(Document requestxml){
         try {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            errMessage+= "数据库连接失败！";
+            return "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         //获取入参的SEQID节点的值
@@ -193,18 +196,15 @@ public class GET_JMPZ_DISPENSE_REC {
                 TWO_CODE.addText(ReplaceNullStringUtil.replaceNullString(resultSet.getString("TWO_CODE")));
             }
             if (resultSet.getRow()==0){
+                errMessage.append("没有查询到数据!");
                 fail();
             }
         }catch (Exception e){
             fail();
         }finally {
-            try {
-                DBUtil.close(conn,preparedStatement,resultSet);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+         DBUtil.close(conn,preparedStatement,resultSet);
         }
-
+        LOG.error(errMessage.toString());
         return document.asXML();
     }
     public void fail(){

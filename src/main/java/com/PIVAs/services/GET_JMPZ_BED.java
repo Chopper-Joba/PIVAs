@@ -4,7 +4,6 @@ import com.PIVAs.util.DBUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.hibernate.validator.internal.util.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,7 @@ public class GET_JMPZ_BED {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
-    String errMessage="";
+    StringBuilder errMessage=new StringBuilder("");
     Logger log= LoggerFactory.getLogger(GET_JMPZ_BED.class);
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_BED(Document requestxml){
@@ -26,17 +25,18 @@ public class GET_JMPZ_BED {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            errMessage+= "数据库连接失败！";
+            //errMessage.append("数据库连接失败！");
+            return  "数据库连接失败";
         }
+        //获取入参的SEQID节点的值
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
-        //获取入参的SEQID节点的值
         seqId=replaceNullString(seqid.getText());
-        Element sourcesystem=root.element("Header").element("SourceSystem");
         //获取入参SourceSystem的节点的值
+        Element sourcesystem=root.element("Header").element("SourceSystem");
         sourceSystem=replaceNullString(sourcesystem.getText());
-        Element messageid=root.element("Header").element("MessageID");
         //获取入参MessageID的值
+        Element messageid=root.element("Header").element("MessageID");
         messageId=replaceNullString(messageid.getText());
         String sql= "select a.病人id as PATIENT_ID,\n" +
                         "       a.主页id as VISIT_ID,\n" +
@@ -50,7 +50,6 @@ public class GET_JMPZ_BED {
                         "   and c.序号 = d.等级id\n" +
                         "   and a.病人id=e.病人id\n" +
                         "   and a.主页id=e.主页id";
-
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -90,23 +89,16 @@ public class GET_JMPZ_BED {
                 BEDNAME.addText(replaceNullString(resultSet.getString("BEDNAME")));
             }
             if (rows==0){
-                errMessage+="没有查询到数据";
+                errMessage.append("没有查询到数据!");
                 fail();
             }
         }catch (Exception e){
-            errMessage+=e.getMessage();
+            errMessage.append(e.getMessage());
             fail();
         }finally {
-            try {
-                conn.close();
-                resultSet.close();
-                preparedStatement.close();
-            }catch ( Exception e){
-                errMessage+=e.getMessage();
-                fail();
-            }
+            DBUtil.close(conn,preparedStatement,resultSet);
         }
-        log.error(errMessage);
+        log.error(errMessage.toString());
         return document.asXML();
     }
     public  String replaceNullString(String str){

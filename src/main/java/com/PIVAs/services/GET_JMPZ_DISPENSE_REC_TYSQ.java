@@ -21,13 +21,15 @@ public class GET_JMPZ_DISPENSE_REC_TYSQ {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
+    StringBuilder errMessage=new StringBuilder("");
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_DISPENSE_REC_TYSQ(Document requestxml){
         try {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            return "数据库连接失败！";
+           // errMessage.append( "数据库连接失败！");
+            return  "数据库连接失败";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -141,15 +143,17 @@ public class GET_JMPZ_DISPENSE_REC_TYSQ {
                 CKID.addText(replaceNullString(resultSet.getString("CKID")));
             }
             if (resultSet.getRow()==0){
+                errMessage.append("没有查询到数据！");
                 fail();
             }
         }catch (Exception e){
-            LOG.error(e.getMessage());
+            //LOG.error(e.getMessage());
             fail();
         }
         finally {
             DBUtil.close(conn,preparedStatement,resultSet);
         }
+        LOG.error(errMessage.toString());
         return document.asXML();
     }
     public  String replaceNullString(String str){

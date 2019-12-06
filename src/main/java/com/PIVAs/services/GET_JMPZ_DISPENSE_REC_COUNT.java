@@ -55,7 +55,6 @@ public class GET_JMPZ_DISPENSE_REC_COUNT {
         sql.append(" distinct a.NO as DISPENSING_XH, a.审核日期 as DISPENSING_DATE_TIME,a.库房ID as DISPENSARY,b.序号 as DISPENSE_AMOUNT");
         sql.append(" from 药品收发记录 a,(select NO, max(序号) as 序号 from 药品收发记录 where 入出系数=-1 group by NO) b");
         sql.append(" where 入出系数=-1 and a.NO=b.NO and a.序号=b.序号 and a.记录状态 in(1,3)");
-
         long current = System.currentTimeMillis();
         long todyZero = current / (1000 * 3600 * 24) * (1000 * 3600 * 24) - TimeZone.getDefault().getRawOffset();
         long todyTwelve = todyZero + 24 * 60 * 60 * 1000 - 1;

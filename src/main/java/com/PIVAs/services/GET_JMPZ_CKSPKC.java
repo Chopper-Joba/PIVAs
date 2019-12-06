@@ -4,6 +4,8 @@ import com.PIVAs.util.DBUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.IOException;
@@ -17,7 +19,8 @@ public class GET_JMPZ_CKSPKC {
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
-    String errMessage="";
+    StringBuilder errMessage=new StringBuilder("");
+    private final Logger LOG = LoggerFactory.getLogger(GET_JMPZ_CKSPKC.class);
     String JMPZ_ID="";
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_CKSPKC(Document requestxml){
@@ -25,24 +28,25 @@ public class GET_JMPZ_CKSPKC {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            errMessage+= "数据库连接失败！";
+            //errMessage.append("数据库连接失败！");
+            return "数据库连接失败";
         }
         Properties properties=null;
         try {
             properties = PropertiesLoaderUtils.loadAllProperties("application.properties");
         } catch (IOException e) {
-            e.printStackTrace();
+            errMessage.append(e.getMessage());
         }
         JMPZ_ID=properties.getProperty("JMPZ_DeptId");
         Element root=requestxml.getRootElement();
+        //获取入参的SEQID节点的值
         Element seqid=root.element("Body").element("SEQID");
-//           获取入参的SEQID节点的值
         seqId=replaceNullString(seqid.getText());
+        //获取入参SourceSystem的节点的值
         Element sourcesystem=root.element("Header").element("SourceSystem");
-//            获取入参SourceSystem的节点的值
         sourceSystem=replaceNullString(sourcesystem.getText());
+        //获取入参MessageID的值
         Element messageid=root.element("Header").element("MessageID");
-//            获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
         String sql= "select a.药品id as SPID, a.库房id as CKID,a.上次产地 as SHENGCCJ ,null as IS_HEGE,a.可用数量 as CKSHL ," +
                 " a.实际数量 as CKSHL_actual, null as KCSX,null as KCXX,b.指导零售价 as COSTS_DJ,null as JWH " +
@@ -91,11 +95,11 @@ public class GET_JMPZ_CKSPKC {
                 JWH.addText(replaceNullString(""));
             }
             if (rows==0){
-                errMessage+="没有查询到数据！";
+                errMessage.append("没有查询到数据！");
                 fail();
             }
         }catch (Exception e){
-            errMessage+=e.getMessage();
+            errMessage.append(e.getMessage());
             fail();
         }
         finally {
@@ -103,6 +107,7 @@ public class GET_JMPZ_CKSPKC {
               DBUtil.close(preparedStatement);
               DBUtil.close(resultSet);
         }
+        LOG.error(errMessage.toString());
         return document.asXML();
 
     }
