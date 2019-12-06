@@ -4,24 +4,27 @@ import com.PIVAs.util.DBUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class GET_JMPZ_DRUG_DICT {
+    private Logger logger= LoggerFactory.getLogger(GET_JMPZ_DRUG_DICT.class);
     Connection conn=null;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
-    String errMessage="";
+    StringBuilder errMessage=new StringBuilder("");
     private  String  seqId,sourceSystem,messageId;
     public String GET_JMPZ_DRUG_DICT(Document requestxml){
         try {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            errMessage+= "数据库连接失败！";
+            return "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -72,6 +75,7 @@ public class GET_JMPZ_DRUG_DICT {
             MESSAGE.setText("成功");
             Element SEQID = Body.addElement("SEQID");
             SEQID.setText(seqId);
+            logger.info(sql);
             int rows = 0;
             while (resultSet.next()){
                 rows++;
@@ -131,14 +135,15 @@ public class GET_JMPZ_DRUG_DICT {
             }
             if (rows==0){
                 fail();
-                errMessage+="没有查询到数据！";
+                errMessage.append("没有查询到数据！");
             }
         }catch (Exception e){
-            errMessage+=e.getMessage();
+            errMessage.append(e.getMessage());
             fail();
         }finally {
             DBUtil.close(conn,preparedStatement,resultSet);
         }
+        logger.error(errMessage.toString());
         return document.asXML();
     }
     public  String replaceNullString(String str){
