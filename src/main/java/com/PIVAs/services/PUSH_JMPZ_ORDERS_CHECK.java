@@ -1,5 +1,6 @@
 package com.PIVAs.services;
 
+import com.PIVAs.constant.OrdersCheckConst;
 import com.PIVAs.entity.ORDERS_CHECK;
 import com.PIVAs.util.DBUtil;
 import com.PIVAs.util.ReplaceNullStringUtil;
@@ -12,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class PUSH_JMPZ_ORDERS_CHECK {
@@ -50,6 +51,9 @@ public class PUSH_JMPZ_ORDERS_CHECK {
             Element SEQID = Body.addElement("SEQID");
             SEQID.setText(ReplaceNullStringUtil.replaceNullString(root.element("Body").element("rows").element("row").element("SEQID").getText()));
             List<Element> elebody=root.element("Body").element("rows").elements("row");
+            //获取系统当前时间
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String nowTime=sdf.format(new Date());
             for (Element elebodys:elebody ) {
                 ordersCheck.setPATIENT_ID(ReplaceNullStringUtil.replaceNullString(elebodys.element("PATIENT_ID").getText()));
                 ordersCheck.setVISIT_ID(ReplaceNullStringUtil.replaceNullString(elebodys.element("VISIT_ID").getText()));
@@ -58,13 +62,15 @@ public class PUSH_JMPZ_ORDERS_CHECK {
                 ordersCheck.setSHENGFANGZT(ReplaceNullStringUtil.replaceNullString(elebodys.element("SHENGFANGZT").getText()));
                 ordersCheck.setSEQID(ReplaceNullStringUtil.replaceNullString(elebodys.element("SEQID").getText()));
                 try {
-                    proc = conn.prepareCall("{call PUSH_JMPZ_ORDERS_CHECK_INS(?,?,?,?,?,?)}");
+                    proc = conn.prepareCall("{call PUSH_JMPZ_ORDERS_CHECK_INS(?,?,?,?,?,to_date(?,'yyyy-mm-dd hh24:mi:ss'),?,?)}");
                     proc.setString(1, ordersCheck.getPATIENT_ID());
                     proc.setString(2, ordersCheck.getVISIT_ID());
                     proc.setString(3, ordersCheck.getORDER_ID());
                     proc.setString(4, ordersCheck.getSHBZ());
                     proc.setString(5, ordersCheck.getSHENGFANGZT());
-                    proc.setString(6, ordersCheck.getSEQID());
+                    proc.setString(6,nowTime);
+                    proc.setInt(7, OrdersCheckConst.OrdersCheckEnum.CREATE.getValue());
+                    proc.setString(8, ordersCheck.getSEQID());
                     proc.execute();
                 } catch (Exception e) {
                     errMessage.append(e.getMessage());
