@@ -4,6 +4,8 @@ import com.PIVAs.util.DBUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -11,18 +13,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class GET_JMPZ_PATIENT_IN {
+    private Logger logger=LoggerFactory.getLogger(GET_JMPZ_PATIENT_IN.class);
     Connection conn=null;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
     String  seqId,sourceSystem,messageId;
-    String errMssage="";//存放错误信息
+    StringBuilder errMssage=new StringBuilder("");//存放错误信息
     public String  GET_JMPZ_PATIENT_IN( Document requestxml){
         try {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            errMssage+= "数据库连接失败！";
+            return  "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         //获取入参的SEQID节点的值
@@ -85,6 +87,7 @@ public class GET_JMPZ_PATIENT_IN {
             MESSAGE.setText("成功");
             Element SEQID=Body.addElement("SEQID");
             SEQID.setText(seqId);
+            logger.info(sql);
             int row=0;
             //出参的rows
             while (resultSet.next()){
@@ -146,22 +149,16 @@ public class GET_JMPZ_PATIENT_IN {
                 PATIENT_CLASS.setText(replaceNullString("住院"));
             }
             if (row==0){
-                errMssage+="没有查询到数据！";
+                errMssage.append("没有查询到数据！");
                 fail();
             }
         }catch (Exception e){
-            errMssage+=e.getMessage();
+            errMssage.append(e.getMessage());
             fail();
         }finally {
-            try {
-                conn.close();
-                resultSet.close();
-                preparedStatement.close();
-            }catch (Exception e){
-                errMssage+=e.getMessage();
-                fail();
-            }
+            DBUtil.close(conn,preparedStatement,resultSet);
         }
+        logger.error(errMssage.toString());
         return document.asXML();
     }
     public  String replaceNullString(String str){

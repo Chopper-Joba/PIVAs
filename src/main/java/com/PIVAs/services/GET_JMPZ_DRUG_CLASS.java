@@ -4,6 +4,8 @@ import com.PIVAs.util.DBUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -11,18 +13,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class GET_JMPZ_DRUG_CLASS {
+    private Logger logger= LoggerFactory.getLogger(GET_JMPZ_DRUG_CLASS.class);
     Connection conn=null;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
     Document document=null;
-    private String errMessage="";
+    private StringBuilder errMessage=new StringBuilder("");
     private  String  seqId,sourceSystem,messageId;
     public  String GET_JMPZ_DRUG_CLASS(Document requestxml){
         try {
             conn = DBUtil.getConnection();
         } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            errMessage= "数据库连接失败！";
+            return "数据库连接失败！";
         }
         Element root=requestxml.getRootElement();
         Element seqid=root.element("Body").element("SEQID");
@@ -34,7 +36,7 @@ public class GET_JMPZ_DRUG_CLASS {
         Element messageid=root.element("Header").element("MessageID");
 //            获取入参MessageID的值
         messageId=replaceNullString(messageid.getText());
-        String sql="";
+        String sql="select null as CLASS_CODE,null as CLASS_NAME from dual";
         try {
             document = DocumentHelper.createDocument();
             document.setXMLEncoding("utf-8");
@@ -53,26 +55,27 @@ public class GET_JMPZ_DRUG_CLASS {
             MESSAGE.setText("成功");
             Element SEQID = Body.addElement("SEQID");
             SEQID.setText(seqId);
+            logger.info(sql);
             int rows = 0;
             while (resultSet.next()){
                 rows++;
                 //代码
                 Element Rows=Body.addElement("Rows");
                 Element CLASS_CODE= Rows.addElement("CLASS_CODE");
-                CLASS_CODE.addText("CLASS_CODE");
+                CLASS_CODE.setText(replaceNullString(resultSet.getString("CLASS_CODE")));
                 //属性名称
                 Element CLASS_NAME=Rows.addElement("CLASS_NAME");
-                CLASS_NAME.setText("CLASS_NAME");
+                CLASS_NAME.setText(replaceNullString(resultSet.getString("CLASS_NAME")));
             }
             if (rows==0){
-                errMessage+="没有查询到数据!";
+                errMessage.append("没有查询到数据!");
                 fail();
             }
         }catch (Exception e){
-            errMessage+=e.getMessage();
+            errMessage.append(e.getMessage());
             fail();
         }
-
+        logger.error(errMessage.toString());
         return document.asXML();
     }
     public  String replaceNullString(String str){
