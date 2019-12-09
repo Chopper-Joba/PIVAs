@@ -22,7 +22,7 @@ public class PushJiZhang {
         this.conn=DBUtil.getConnection();
     }
 
-    public void PushZhuYuanJiZhang(String PATIENT_ID,String Department_no,String Item_no,String DevNo,String Num,String Costs,String Createtime) throws SQLException {
+    public void PushZhuYuanJiZhang(String PATIENT_ID,String Department_no,String Item_no,String DevNo,int Num,String Costs,String Createtime) throws SQLException {
         //获取病人信息
         Patient patient=getPatient(PATIENT_ID);
         //生成单据号
@@ -32,7 +32,7 @@ public class PushJiZhang {
         //操作人姓名
         String devName=getDevName(DevNo);
         //收费类别
-        String feesType=getFeesType(Item_no);
+        String feesType=getFeesType("27845");
         String sql="{call ZL_住院记帐记录_INSERT(?,?,?,?,?,?,?,?,?,?" +
                 ",?,?,?,?,?,?,?,?,?,?" +
                 ",?,?,?,?,?,?,?,?,?,?" +
@@ -61,18 +61,18 @@ public class PushJiZhang {
         //从属父号
         cbs.setInt(17,0);
         //收费项目
-        cbs.setInt(18,Integer.valueOf(Item_no));
+        cbs.setInt(18,27845);
         cbs.setString(19,feesType);
         //计算单位
         cbs.setString(20,null);
         //保险项目否
         cbs.setInt(21,0);
         //保险大类id
-        cbs.setInt(22,0);
+        cbs.setInt(22,10);
         //保险编码
         cbs.setString(23,null);
         cbs.setInt(24,1);
-        cbs.setInt(25,Integer.valueOf(Num));
+        cbs.setInt(25,Num);
         //附加标志
         cbs.setInt(26,0);
         cbs.setInt(27,Integer.valueOf(Department_no));
@@ -158,11 +158,11 @@ public class PushJiZhang {
         return DevName;
     }
     //获取费别
-    private String getFeesType(String Item_no) throws SQLException {
+    private String getFeesType(String feesID) throws SQLException {
         String feesType="";
-        String sql="select 类别 from 收费细目 where ID=?";
+        String sql="select 类别 as type from 收费细目 where ID=?";
         preparedStatement=conn.prepareStatement(sql);
-        preparedStatement.setInt(1,Integer.valueOf(Item_no));
+        preparedStatement.setInt(1,Integer.valueOf(feesID));
         resultSet=preparedStatement.executeQuery();
         while (resultSet.next()){
             feesType=resultSet.getString("type");

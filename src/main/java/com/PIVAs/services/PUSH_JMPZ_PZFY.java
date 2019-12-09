@@ -25,6 +25,8 @@ public class PUSH_JMPZ_PZFY {
     private  String  sourceSystem,messageId;
     CallableStatement proc=null;
     StringBuilder errMessage=new StringBuilder("");
+
+    PushJiZhang pushJiZhang;
     public String PUSH_JMPZ_PZFY(Document requestxml){
         try {
             conn = DBUtil.getConnection();
@@ -71,6 +73,7 @@ public class PUSH_JMPZ_PZFY {
                 }
                 pzfy.setSEQID(ReplaceNullStringUtil.replaceNullString(row.element("SEQID").getText()));
                 SEQID.setText(pzfy.getSEQID());
+
                 try {
                     proc = conn.prepareCall("{call PUSH_JMPZ_PZFY_INS(?,?,?,?,?,?,?,?,?,?,to_date(?,'yyyy-MM-dd HH24:mi:ss'),?)}");
                     proc.setInt(1,pzfy.getID());
@@ -97,10 +100,13 @@ public class PUSH_JMPZ_PZFY {
                     //ID
                     Element ID = ROWS.addElement("ID");
                     ID.setText(ReplaceNullStringUtil.replaceNullString(String.valueOf(pzfy.getID())));
+
+                    //配置费用记帐
+                    pushJiZhang=new PushJiZhang();
+                    pushJiZhang.PushZhuYuanJiZhang(pzfy.getPATIENT_ID(),pzfy.getDepartment_no(),pzfy.getItem_no(),pzfy.getDevNo(),pzfy.getNum(),row.element("Costs").getText(),row.element("Createtime").getText());
                 }catch (Exception e){
                     errMessage.append(e.getMessage());
                     fail();
-                    return e.getMessage();
                 }
             }
         } catch (IOException e1) {
