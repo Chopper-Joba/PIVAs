@@ -33,6 +33,8 @@ public class PushJiZhang {
         String devName=getDevName(DevNo);
         //收费类别
         String feesType=getFeesType("27845");
+        //收据费目
+        String receiptFee=getReceiptFee(Item_no);
         String sql="{call ZL_住院记帐记录_INSERT(?,?,?,?,?,?,?,?,?,?" +
                 ",?,?,?,?,?,?,?,?,?,?" +
                 ",?,?,?,?,?,?,?,?,?,?" +
@@ -80,7 +82,7 @@ public class PushJiZhang {
         cbs.setInt(28,0);
         //收入项目
         cbs.setInt(29,Integer.valueOf(Item_no));
-        cbs.setString(30,null);
+        cbs.setString(30,receiptFee);
         cbs.setInt(31,0);
         cbs.setBigDecimal(32,new BigDecimal(Costs));
         cbs.setBigDecimal(33,new BigDecimal(Costs));
@@ -168,5 +170,17 @@ public class PushJiZhang {
             feesType=resultSet.getString("type");
         }
         return feesType;
+    }
+    //获取收据费目
+    private String getReceiptFee(String Item_no) throws SQLException {
+        String receiptFee="";
+        String sql="select 收据费目 as receiptFee from 收入项目 where ID=?";
+        preparedStatement=conn.prepareStatement(sql);
+        preparedStatement.setInt(1,Integer.valueOf(Item_no));
+        resultSet=preparedStatement.executeQuery();
+        while (resultSet.next()){
+            receiptFee=resultSet.getString("receiptFee");
+        }
+        return receiptFee;
     }
 }
