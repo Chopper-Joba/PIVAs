@@ -29,7 +29,7 @@
 	SHBZ VARCHAR(2) not null,
 	SHENGFANGZT VARCHAR(20) not null,
 	CREATE_TIME DATE not null,
-	STATUS INT null,
+	STATUS INT not null,
 	SEQID Varchar(100) not null
 	);
 

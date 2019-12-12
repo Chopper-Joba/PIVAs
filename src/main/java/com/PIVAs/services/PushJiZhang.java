@@ -138,15 +138,20 @@ public class PushJiZhang {
     }
     //获取住院费用序号
     private String getXH(String NoId) throws SQLException {
-        String XH="";
-        String sql="select max(序号)+1 as No from 住院费用记录 where NO=?";
+        Integer XH=0;
+        String sql="select max(序号) as No from 住院费用记录 where NO=?";
         preparedStatement=conn.prepareStatement(sql);
         preparedStatement.setString(1,NoId);
         resultSet=preparedStatement.executeQuery();
         while (resultSet.next()){
-            XH=resultSet.getString("No");
+            XH=resultSet.getInt("No");
+            if (XH.equals(0)){
+                XH++;
+            }else{
+                XH++;
+            }
         }
-        return XH;
+        return XH.toString();
     }
     //获取操作员
     private String getDevName(String DevNo) throws SQLException {

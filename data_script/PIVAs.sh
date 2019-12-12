@@ -1,6 +1,6 @@
 ﻿#!/bin/bash
 #需要执行的jar包
-APP_NAME=demo.jar
+APP_NAME=pivas.jar
 
 #使用说明，用来提示输入参数
 usage() {
