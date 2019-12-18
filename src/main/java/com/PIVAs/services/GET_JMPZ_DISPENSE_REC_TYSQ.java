@@ -41,7 +41,7 @@ public class GET_JMPZ_DISPENSE_REC_TYSQ {
         messageId=replaceNullString(messageid.getText());
         StringBuilder sql=new StringBuilder("select");
         sql.append(" a.NO as TYSEQ,a.填制日期  as TYSQ_DATE_TIME,a.配药日期 as DISPENSING_DATE_TIME,a.对方部门ID as ORDERED_BY,");
-        sql.append(" b.病人ID as PATIENT_ID,b.主页ID as VISIT_ID,a.序号 as XH,null as ORDER_NO,a.序号 as ORDER_SUB_NO,a.药品ID as DRUG_CODE,c.规格 as DRUG_SPEC,");
+        sql.append(" b.病人ID as PATIENT_ID,b.主页ID as VISIT_ID,a.序号 as XH,a.序号 as ORDER_NO,null as ORDER_SUB_NO,a.药品ID as DRUG_CODE,c.规格 as DRUG_SPEC,");
         sql.append(" c.住院单位 as DRUG_UNITS,a.产地 as FIRM_ID,ABS(a.实际数量) as TYSQSL,ABS(a.零售金额) as COSTS,decode(d.医嘱期效,0,1,1,0,null)as REPEAT_INDICATOR,");
         sql.append(" d.医嘱内容 as ROUTENAME,d.开始执行时间 as USEDATE,null as USE_TIME,a.库房id as CKID");
         sql.append(" from 药品收发记录 a,住院费用记录 b,药品目录 c,病人医嘱记录 d");

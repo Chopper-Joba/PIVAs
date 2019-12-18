@@ -75,8 +75,8 @@ public class  GET_JMPZ_ORDERS{
                 "       a.单次用量 as AMOUNT,\n" +
                 "       a.病人id as PATIENT_ID,\n" +
                 "       a.主页id as VISIT_ID ,\n" +
-                "       null as ORDER_NO,\n" +
-                "       a.序号 as ORDER_SUB_NO,\n" +
+                "       a.序号 as ORDER_NO,\n" +
+                "        null as ORDER_SUB_NO,\n" +
                 "       decode(a.医嘱期效, 1, 0, 0, 1, null) as REPEAT_INDICATOR,\n" +
                 "       b.名称 as ORDER_CLASS,\n" +
                 "       a.收费细目id as ORDER_CODE,\n" +

@@ -7,7 +7,6 @@ import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

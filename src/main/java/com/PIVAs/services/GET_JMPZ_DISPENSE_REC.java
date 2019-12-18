@@ -53,8 +53,8 @@ public class GET_JMPZ_DISPENSE_REC {
                 "b.病人id as PATIENT_ID,\n" +
                 "b.主页id as VISIT_ID,\n" +
                 "a.序号 as XH,\n" +
-                "null as ORDER_NO,\n" +
-                "a.序号 as ORDER_SUB_NO,\n" +
+                "a.序号 as ORDER_NO,\n" +
+                "null  as ORDER_SUB_NO,\n" +
                 "a.药品id as DRUG_CODE,\n" +
                 "c.规格 as DRUG_SPEC,\n" +
                 "c.住院单位 as DRUG_UNITS,\n" +
